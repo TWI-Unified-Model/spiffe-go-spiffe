@@ -22,6 +22,204 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// FreshnessKind classifies the freshness of Evidence in one credential
+// acquisition exchange (TACRA, Freshness Kind). The present kinds carry a
+// Freshness Handle the workload embeds in its Evidence; the absent kinds
+// carry none.
+type FreshnessKind int32
+
+const (
+	FreshnessKind_FRESHNESS_KIND_UNSPECIFIED FreshnessKind = 0
+	// No freshness claim.
+	FreshnessKind_FRESHNESS_KIND_ABSENT_NONE FreshnessKind = 1
+	// The workload stamps its Evidence with its own timestamp.
+	FreshnessKind_FRESHNESS_KIND_ABSENT_TIMESTAMP FreshnessKind = 2
+	// The workload embeds an epoch marker it already holds.
+	FreshnessKind_FRESHNESS_KIND_ABSENT_EPOCH FreshnessKind = 3
+	// The Freshness Handle is a single-use nonce.
+	FreshnessKind_FRESHNESS_KIND_PRESENT_NONCE FreshnessKind = 4
+	// The Freshness Handle is the current epoch marker. The workload calls
+	// InitiateCredentialAcquisition again when the epoch has moved.
+	FreshnessKind_FRESHNESS_KIND_PRESENT_EPOCH FreshnessKind = 5
+)
+
+// Enum value maps for FreshnessKind.
+var (
+	FreshnessKind_name = map[int32]string{
+		0: "FRESHNESS_KIND_UNSPECIFIED",
+		1: "FRESHNESS_KIND_ABSENT_NONE",
+		2: "FRESHNESS_KIND_ABSENT_TIMESTAMP",
+		3: "FRESHNESS_KIND_ABSENT_EPOCH",
+		4: "FRESHNESS_KIND_PRESENT_NONCE",
+		5: "FRESHNESS_KIND_PRESENT_EPOCH",
+	}
+	FreshnessKind_value = map[string]int32{
+		"FRESHNESS_KIND_UNSPECIFIED":      0,
+		"FRESHNESS_KIND_ABSENT_NONE":      1,
+		"FRESHNESS_KIND_ABSENT_TIMESTAMP": 2,
+		"FRESHNESS_KIND_ABSENT_EPOCH":     3,
+		"FRESHNESS_KIND_PRESENT_NONCE":    4,
+		"FRESHNESS_KIND_PRESENT_EPOCH":    5,
+	}
+)
+
+func (x FreshnessKind) Enum() *FreshnessKind {
+	p := new(FreshnessKind)
+	*p = x
+	return p
+}
+
+func (x FreshnessKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (FreshnessKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_workload_proto_enumTypes[0].Descriptor()
+}
+
+func (FreshnessKind) Type() protoreflect.EnumType {
+	return &file_workload_proto_enumTypes[0]
+}
+
+func (x FreshnessKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use FreshnessKind.Descriptor instead.
+func (FreshnessKind) EnumDescriptor() ([]byte, []int) {
+	return file_workload_proto_rawDescGZIP(), []int{0}
+}
+
+// CredentialAcquisitionMode is the mode in which a Target's credential is
+// acquired (TACRA, Credential Acquisition Mode).
+type CredentialAcquisitionMode int32
+
+const (
+	CredentialAcquisitionMode_CREDENTIAL_ACQUISITION_MODE_UNSPECIFIED CredentialAcquisitionMode = 0
+	// Enrollment: a new proof-of-possession credential is minted for a key
+	// the workload generated (EnrollCredential).
+	CredentialAcquisitionMode_CREDENTIAL_ACQUISITION_MODE_ENROLL CredentialAcquisitionMode = 1
+	// Retrieval: a pre-existing credential is released, sealed to a key the
+	// workload generated (RetrieveCredential).
+	CredentialAcquisitionMode_CREDENTIAL_ACQUISITION_MODE_RETRIEVE CredentialAcquisitionMode = 2
+)
+
+// Enum value maps for CredentialAcquisitionMode.
+var (
+	CredentialAcquisitionMode_name = map[int32]string{
+		0: "CREDENTIAL_ACQUISITION_MODE_UNSPECIFIED",
+		1: "CREDENTIAL_ACQUISITION_MODE_ENROLL",
+		2: "CREDENTIAL_ACQUISITION_MODE_RETRIEVE",
+	}
+	CredentialAcquisitionMode_value = map[string]int32{
+		"CREDENTIAL_ACQUISITION_MODE_UNSPECIFIED": 0,
+		"CREDENTIAL_ACQUISITION_MODE_ENROLL":      1,
+		"CREDENTIAL_ACQUISITION_MODE_RETRIEVE":    2,
+	}
+)
+
+func (x CredentialAcquisitionMode) Enum() *CredentialAcquisitionMode {
+	p := new(CredentialAcquisitionMode)
+	*p = x
+	return p
+}
+
+func (x CredentialAcquisitionMode) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (CredentialAcquisitionMode) Descriptor() protoreflect.EnumDescriptor {
+	return file_workload_proto_enumTypes[1].Descriptor()
+}
+
+func (CredentialAcquisitionMode) Type() protoreflect.EnumType {
+	return &file_workload_proto_enumTypes[1]
+}
+
+func (x CredentialAcquisitionMode) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use CredentialAcquisitionMode.Descriptor instead.
+func (CredentialAcquisitionMode) EnumDescriptor() ([]byte, []int) {
+	return file_workload_proto_rawDescGZIP(), []int{1}
+}
+
+// CredentialType names the kind of credential acquired (TACRA, Credential
+// Type token).
+type CredentialType int32
+
+const (
+	CredentialType_CREDENTIAL_TYPE_UNSPECIFIED CredentialType = 0
+	// An X.509 certificate (token x509). Enrollment mints an X509-SVID.
+	CredentialType_CREDENTIAL_TYPE_X509 CredentialType = 1
+	// A WIMSE Workload Identity Certificate (token wic): an X.509
+	// certificate whose one URI SAN is the workload identifier.
+	CredentialType_CREDENTIAL_TYPE_WIC CredentialType = 2
+	// A WIMSE Workload Identity Token (token wit). Retrieval only.
+	CredentialType_CREDENTIAL_TYPE_WIT CredentialType = 3
+	// A JSON Web Token used as a bearer token (token jwt). Retrieval only.
+	CredentialType_CREDENTIAL_TYPE_JWT CredentialType = 4
+	// An API key (token api-key). Retrieval only.
+	CredentialType_CREDENTIAL_TYPE_API_KEY CredentialType = 5
+	// A pre-shared symmetric key (token psk). Retrieval only.
+	CredentialType_CREDENTIAL_TYPE_PSK CredentialType = 6
+	// A private key shared by the instances of a replicated service (token
+	// private-key). Retrieval only.
+	CredentialType_CREDENTIAL_TYPE_PRIVATE_KEY CredentialType = 7
+)
+
+// Enum value maps for CredentialType.
+var (
+	CredentialType_name = map[int32]string{
+		0: "CREDENTIAL_TYPE_UNSPECIFIED",
+		1: "CREDENTIAL_TYPE_X509",
+		2: "CREDENTIAL_TYPE_WIC",
+		3: "CREDENTIAL_TYPE_WIT",
+		4: "CREDENTIAL_TYPE_JWT",
+		5: "CREDENTIAL_TYPE_API_KEY",
+		6: "CREDENTIAL_TYPE_PSK",
+		7: "CREDENTIAL_TYPE_PRIVATE_KEY",
+	}
+	CredentialType_value = map[string]int32{
+		"CREDENTIAL_TYPE_UNSPECIFIED": 0,
+		"CREDENTIAL_TYPE_X509":        1,
+		"CREDENTIAL_TYPE_WIC":         2,
+		"CREDENTIAL_TYPE_WIT":         3,
+		"CREDENTIAL_TYPE_JWT":         4,
+		"CREDENTIAL_TYPE_API_KEY":     5,
+		"CREDENTIAL_TYPE_PSK":         6,
+		"CREDENTIAL_TYPE_PRIVATE_KEY": 7,
+	}
+)
+
+func (x CredentialType) Enum() *CredentialType {
+	p := new(CredentialType)
+	*p = x
+	return p
+}
+
+func (x CredentialType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (CredentialType) Descriptor() protoreflect.EnumDescriptor {
+	return file_workload_proto_enumTypes[2].Descriptor()
+}
+
+func (CredentialType) Type() protoreflect.EnumType {
+	return &file_workload_proto_enumTypes[2]
+}
+
+func (x CredentialType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use CredentialType.Descriptor instead.
+func (CredentialType) EnumDescriptor() ([]byte, []int) {
+	return file_workload_proto_rawDescGZIP(), []int{2}
+}
+
 // The X509SVIDRequest message conveys parameters for requesting an X.509-SVID.
 // There are currently no request parameters.
 type X509SVIDRequest struct {
@@ -933,6 +1131,643 @@ func (x *WITBundlesResponse) GetBundles() map[string]string {
 	return nil
 }
 
+// The EvidenceBinding message declares how the credential key is bound to
+// the Evidence (TACRA, Binding Credential Keys to Evidence).
+type EvidenceBinding struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. The binding method. binding-input is the digest of the
+	// freshness element, the Target and the subject (the CSR, or the public
+	// Credential Encryption Key), each preceded by its length, written into
+	// the freshness input of the Evidence.
+	Method string `protobuf:"bytes,1,opt,name=method,proto3" json:"method,omitempty"`
+	// Required. The digest the method uses, for example sha512.
+	Hash          string `protobuf:"bytes,2,opt,name=hash,proto3" json:"hash,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EvidenceBinding) Reset() {
+	*x = EvidenceBinding{}
+	mi := &file_workload_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EvidenceBinding) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EvidenceBinding) ProtoMessage() {}
+
+func (x *EvidenceBinding) ProtoReflect() protoreflect.Message {
+	mi := &file_workload_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EvidenceBinding.ProtoReflect.Descriptor instead.
+func (*EvidenceBinding) Descriptor() ([]byte, []int) {
+	return file_workload_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *EvidenceBinding) GetMethod() string {
+	if x != nil {
+		return x.Method
+	}
+	return ""
+}
+
+func (x *EvidenceBinding) GetHash() string {
+	if x != nil {
+		return x.Hash
+	}
+	return ""
+}
+
+// The InitiateCredentialAcquisitionRequest message conveys the parameters
+// of Initiate-Credential-Acquisition.
+type InitiateCredentialAcquisitionRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. The Target: the octet string that names the relying party
+	// the credential is for, as the workload and that party agree on it.
+	// With SPIRE, the SPIFFE ID of the trust domain names the trust domain
+	// whose workloads rely on the credential.
+	Target string `protobuf:"bytes,1,opt,name=target,proto3" json:"target,omitempty"`
+	// Optional. The Credential Type the workload plans to use with the
+	// Target. If unset, the Target's policy decides.
+	CredentialType CredentialType `protobuf:"varint,2,opt,name=credential_type,json=credentialType,proto3,enum=CredentialType" json:"credential_type,omitempty"`
+	// Optional. The Credential Hint. With SPIRE, the hint of the
+	// registration entry whose identity the workload wants when it is
+	// entitled to more than one.
+	CredentialHint string `protobuf:"bytes,3,opt,name=credential_hint,json=credentialHint,proto3" json:"credential_hint,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *InitiateCredentialAcquisitionRequest) Reset() {
+	*x = InitiateCredentialAcquisitionRequest{}
+	mi := &file_workload_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InitiateCredentialAcquisitionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InitiateCredentialAcquisitionRequest) ProtoMessage() {}
+
+func (x *InitiateCredentialAcquisitionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_workload_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InitiateCredentialAcquisitionRequest.ProtoReflect.Descriptor instead.
+func (*InitiateCredentialAcquisitionRequest) Descriptor() ([]byte, []int) {
+	return file_workload_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *InitiateCredentialAcquisitionRequest) GetTarget() string {
+	if x != nil {
+		return x.Target
+	}
+	return ""
+}
+
+func (x *InitiateCredentialAcquisitionRequest) GetCredentialType() CredentialType {
+	if x != nil {
+		return x.CredentialType
+	}
+	return CredentialType_CREDENTIAL_TYPE_UNSPECIFIED
+}
+
+func (x *InitiateCredentialAcquisitionRequest) GetCredentialHint() string {
+	if x != nil {
+		return x.CredentialHint
+	}
+	return ""
+}
+
+// The InitiateCredentialAcquisitionResponse message conveys what the
+// workload needs to produce its key and its Evidence.
+type InitiateCredentialAcquisitionResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. The mode in which the Target's credential is acquired.
+	Mode CredentialAcquisitionMode `protobuf:"varint,1,opt,name=mode,proto3,enum=CredentialAcquisitionMode" json:"mode,omitempty"`
+	// Required. The Freshness Kind of this exchange.
+	FreshnessKind FreshnessKind `protobuf:"varint,2,opt,name=freshness_kind,json=freshnessKind,proto3,enum=FreshnessKind" json:"freshness_kind,omitempty"`
+	// The Freshness Handle: required for present-nonce (16 to 64 octets, at
+	// least 128 bits of entropy, issued once) and present-epoch (8 to 64
+	// octets), absent otherwise. The workload embeds it in its Evidence and
+	// sends it back as the freshness element of the second call.
+	FreshnessHandle []byte `protobuf:"bytes,3,opt,name=freshness_handle,json=freshnessHandle,proto3" json:"freshness_handle,omitempty"`
+	// Optional. Seconds until the Freshness Handle is no longer valid.
+	ExpiresIn uint32 `protobuf:"varint,4,opt,name=expires_in,json=expiresIn,proto3" json:"expires_in,omitempty"`
+	// Optional. For absent-timestamp, the maximum age in seconds of
+	// Evidence the Verifier accepts.
+	MaxAge uint32 `protobuf:"varint,5,opt,name=max_age,json=maxAge,proto3" json:"max_age,omitempty"`
+	// The signature algorithms the Credential Authority accepts for the
+	// Credential Signing Key, as tokens of the TACRA EST profile, for
+	// example ecdsa-p256-sha256. Required when mode is enroll, absent
+	// otherwise.
+	AcceptableCsk []string `protobuf:"bytes,6,rep,name=acceptable_csk,json=acceptableCsk,proto3" json:"acceptable_csk,omitempty"`
+	// The HPKE suites the Secret Vault seals to, each named by its KEM, KDF
+	// and AEAD joined with +, for example
+	// DHKEM(P-256, HKDF-SHA256)+HKDF-SHA256+AES-256-GCM. Required when mode
+	// is retrieve, absent otherwise.
+	AcceptableCek []string `protobuf:"bytes,7,rep,name=acceptable_cek,json=acceptableCek,proto3" json:"acceptable_cek,omitempty"`
+	// Optional. The Evidence formats accepted, each named by its media
+	// type, for example application/vnd.veraison.tsm-report+cbor. When set,
+	// the second call names the format of its Evidence in evidence_profile.
+	AcceptableEvidence []string `protobuf:"bytes,8,rep,name=acceptable_evidence,json=acceptableEvidence,proto3" json:"acceptable_evidence,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *InitiateCredentialAcquisitionResponse) Reset() {
+	*x = InitiateCredentialAcquisitionResponse{}
+	mi := &file_workload_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InitiateCredentialAcquisitionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InitiateCredentialAcquisitionResponse) ProtoMessage() {}
+
+func (x *InitiateCredentialAcquisitionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_workload_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InitiateCredentialAcquisitionResponse.ProtoReflect.Descriptor instead.
+func (*InitiateCredentialAcquisitionResponse) Descriptor() ([]byte, []int) {
+	return file_workload_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *InitiateCredentialAcquisitionResponse) GetMode() CredentialAcquisitionMode {
+	if x != nil {
+		return x.Mode
+	}
+	return CredentialAcquisitionMode_CREDENTIAL_ACQUISITION_MODE_UNSPECIFIED
+}
+
+func (x *InitiateCredentialAcquisitionResponse) GetFreshnessKind() FreshnessKind {
+	if x != nil {
+		return x.FreshnessKind
+	}
+	return FreshnessKind_FRESHNESS_KIND_UNSPECIFIED
+}
+
+func (x *InitiateCredentialAcquisitionResponse) GetFreshnessHandle() []byte {
+	if x != nil {
+		return x.FreshnessHandle
+	}
+	return nil
+}
+
+func (x *InitiateCredentialAcquisitionResponse) GetExpiresIn() uint32 {
+	if x != nil {
+		return x.ExpiresIn
+	}
+	return 0
+}
+
+func (x *InitiateCredentialAcquisitionResponse) GetMaxAge() uint32 {
+	if x != nil {
+		return x.MaxAge
+	}
+	return 0
+}
+
+func (x *InitiateCredentialAcquisitionResponse) GetAcceptableCsk() []string {
+	if x != nil {
+		return x.AcceptableCsk
+	}
+	return nil
+}
+
+func (x *InitiateCredentialAcquisitionResponse) GetAcceptableCek() []string {
+	if x != nil {
+		return x.AcceptableCek
+	}
+	return nil
+}
+
+func (x *InitiateCredentialAcquisitionResponse) GetAcceptableEvidence() []string {
+	if x != nil {
+		return x.AcceptableEvidence
+	}
+	return nil
+}
+
+// The EnrollCredentialRequest message conveys the parameters of
+// Enroll-Credential. target, credential_type and credential_hint repeat
+// those of the InitiateCredentialAcquisition call that began the exchange.
+type EnrollCredentialRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. The Target of the InitiateCredentialAcquisition call.
+	Target string `protobuf:"bytes,1,opt,name=target,proto3" json:"target,omitempty"`
+	// Optional. The Credential Type: x509 or wic. A present-nonce exchange
+	// that named one at initiation names the same here.
+	CredentialType CredentialType `protobuf:"varint,2,opt,name=credential_type,json=credentialType,proto3,enum=CredentialType" json:"credential_type,omitempty"`
+	// Optional. The Credential Hint, as at initiation.
+	CredentialHint string `protobuf:"bytes,3,opt,name=credential_hint,json=credentialHint,proto3" json:"credential_hint,omitempty"`
+	// Required. The Freshness Kind the InitiateCredentialAcquisition call
+	// returned.
+	FreshnessKind FreshnessKind `protobuf:"varint,4,opt,name=freshness_kind,json=freshnessKind,proto3,enum=FreshnessKind" json:"freshness_kind,omitempty"`
+	// The freshness element the Evidence binds: the Freshness Handle for
+	// present-nonce and present-epoch, the epoch marker the workload holds
+	// for absent-epoch, the workload's 8-octet timestamp for
+	// absent-timestamp, absent for absent-none.
+	FreshnessElement []byte `protobuf:"bytes,5,opt,name=freshness_element,json=freshnessElement,proto3" json:"freshness_element,omitempty"`
+	// Required. ASN.1 DER encoded PKCS#10 CSR, signed by the Credential
+	// Signing Key the workload generated. The CSR conveys the public key;
+	// the SPIFFE ID of the credential comes from the workload's
+	// registration, as for FetchX509SVID, not from the CSR.
+	Csr []byte `protobuf:"bytes,6,opt,name=csr,proto3" json:"csr,omitempty"`
+	// Required. The Evidence, bound to the CSR, the Target and the freshness
+	// element as binding declares.
+	Evidence []byte `protobuf:"bytes,7,opt,name=evidence,proto3" json:"evidence,omitempty"`
+	// Optional. The media type of evidence, one of the acceptable_evidence
+	// of the InitiateCredentialAcquisition response.
+	EvidenceProfile string `protobuf:"bytes,8,opt,name=evidence_profile,json=evidenceProfile,proto3" json:"evidence_profile,omitempty"`
+	// Required. How the Evidence binds the CSR.
+	Binding       *EvidenceBinding `protobuf:"bytes,9,opt,name=binding,proto3" json:"binding,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EnrollCredentialRequest) Reset() {
+	*x = EnrollCredentialRequest{}
+	mi := &file_workload_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EnrollCredentialRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EnrollCredentialRequest) ProtoMessage() {}
+
+func (x *EnrollCredentialRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_workload_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EnrollCredentialRequest.ProtoReflect.Descriptor instead.
+func (*EnrollCredentialRequest) Descriptor() ([]byte, []int) {
+	return file_workload_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *EnrollCredentialRequest) GetTarget() string {
+	if x != nil {
+		return x.Target
+	}
+	return ""
+}
+
+func (x *EnrollCredentialRequest) GetCredentialType() CredentialType {
+	if x != nil {
+		return x.CredentialType
+	}
+	return CredentialType_CREDENTIAL_TYPE_UNSPECIFIED
+}
+
+func (x *EnrollCredentialRequest) GetCredentialHint() string {
+	if x != nil {
+		return x.CredentialHint
+	}
+	return ""
+}
+
+func (x *EnrollCredentialRequest) GetFreshnessKind() FreshnessKind {
+	if x != nil {
+		return x.FreshnessKind
+	}
+	return FreshnessKind_FRESHNESS_KIND_UNSPECIFIED
+}
+
+func (x *EnrollCredentialRequest) GetFreshnessElement() []byte {
+	if x != nil {
+		return x.FreshnessElement
+	}
+	return nil
+}
+
+func (x *EnrollCredentialRequest) GetCsr() []byte {
+	if x != nil {
+		return x.Csr
+	}
+	return nil
+}
+
+func (x *EnrollCredentialRequest) GetEvidence() []byte {
+	if x != nil {
+		return x.Evidence
+	}
+	return nil
+}
+
+func (x *EnrollCredentialRequest) GetEvidenceProfile() string {
+	if x != nil {
+		return x.EvidenceProfile
+	}
+	return ""
+}
+
+func (x *EnrollCredentialRequest) GetBinding() *EvidenceBinding {
+	if x != nil {
+		return x.Binding
+	}
+	return nil
+}
+
+// The EnrollCredentialResponse message carries the enrolled X509-SVID. It
+// carries no private key: the key never left the workload.
+type EnrollCredentialResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. The SPIFFE ID of the X509-SVID.
+	SpiffeId string `protobuf:"bytes,1,opt,name=spiffe_id,json=spiffeId,proto3" json:"spiffe_id,omitempty"`
+	// Required. ASN.1 DER encoded certificate chain. MAY include
+	// intermediates, the leaf certificate (or SVID itself) MUST come first.
+	X509Svid []byte `protobuf:"bytes,2,opt,name=x509_svid,json=x509Svid,proto3" json:"x509_svid,omitempty"`
+	// Required. ASN.1 DER encoded X.509 bundle for the trust domain.
+	Bundle []byte `protobuf:"bytes,3,opt,name=bundle,proto3" json:"bundle,omitempty"`
+	// Optional. An operator-specified string used to provide guidance on how
+	// this identity should be used by a workload, as in X509SVID.
+	Hint          string `protobuf:"bytes,4,opt,name=hint,proto3" json:"hint,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EnrollCredentialResponse) Reset() {
+	*x = EnrollCredentialResponse{}
+	mi := &file_workload_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EnrollCredentialResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EnrollCredentialResponse) ProtoMessage() {}
+
+func (x *EnrollCredentialResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_workload_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EnrollCredentialResponse.ProtoReflect.Descriptor instead.
+func (*EnrollCredentialResponse) Descriptor() ([]byte, []int) {
+	return file_workload_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *EnrollCredentialResponse) GetSpiffeId() string {
+	if x != nil {
+		return x.SpiffeId
+	}
+	return ""
+}
+
+func (x *EnrollCredentialResponse) GetX509Svid() []byte {
+	if x != nil {
+		return x.X509Svid
+	}
+	return nil
+}
+
+func (x *EnrollCredentialResponse) GetBundle() []byte {
+	if x != nil {
+		return x.Bundle
+	}
+	return nil
+}
+
+func (x *EnrollCredentialResponse) GetHint() string {
+	if x != nil {
+		return x.Hint
+	}
+	return ""
+}
+
+// The RetrieveCredentialRequest message conveys the parameters of
+// Retrieve-Credential. target, credential_type and credential_hint repeat
+// those of the InitiateCredentialAcquisition call that began the exchange.
+type RetrieveCredentialRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. The Target of the InitiateCredentialAcquisition call.
+	Target string `protobuf:"bytes,1,opt,name=target,proto3" json:"target,omitempty"`
+	// Optional. The Credential Type. A present-nonce exchange that named
+	// one at initiation names the same here.
+	CredentialType CredentialType `protobuf:"varint,2,opt,name=credential_type,json=credentialType,proto3,enum=CredentialType" json:"credential_type,omitempty"`
+	// Optional. The Credential Hint, as at initiation.
+	CredentialHint string `protobuf:"bytes,3,opt,name=credential_hint,json=credentialHint,proto3" json:"credential_hint,omitempty"`
+	// Required. The Freshness Kind the InitiateCredentialAcquisition call
+	// returned.
+	FreshnessKind FreshnessKind `protobuf:"varint,4,opt,name=freshness_kind,json=freshnessKind,proto3,enum=FreshnessKind" json:"freshness_kind,omitempty"`
+	// The freshness element the Evidence binds, as for EnrollCredential.
+	FreshnessElement []byte `protobuf:"bytes,5,opt,name=freshness_element,json=freshnessElement,proto3" json:"freshness_element,omitempty"`
+	// Required. The public Credential Encryption Key the Secret Vault seals
+	// the credential to, in the encoding of its KEM: a DER
+	// SubjectPublicKeyInfo for DHKEM(P-256, HKDF-SHA256), the encapsulation
+	// key itself for a hybrid KEM.
+	CekPub []byte `protobuf:"bytes,6,opt,name=cek_pub,json=cekPub,proto3" json:"cek_pub,omitempty"`
+	// Required. The Evidence, bound to cek_pub, the Target and the freshness
+	// element as binding declares.
+	Evidence []byte `protobuf:"bytes,7,opt,name=evidence,proto3" json:"evidence,omitempty"`
+	// Optional. The media type of evidence, one of the acceptable_evidence
+	// of the InitiateCredentialAcquisition response.
+	EvidenceProfile string `protobuf:"bytes,8,opt,name=evidence_profile,json=evidenceProfile,proto3" json:"evidence_profile,omitempty"`
+	// Required. How the Evidence binds cek_pub.
+	Binding       *EvidenceBinding `protobuf:"bytes,9,opt,name=binding,proto3" json:"binding,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RetrieveCredentialRequest) Reset() {
+	*x = RetrieveCredentialRequest{}
+	mi := &file_workload_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RetrieveCredentialRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RetrieveCredentialRequest) ProtoMessage() {}
+
+func (x *RetrieveCredentialRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_workload_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RetrieveCredentialRequest.ProtoReflect.Descriptor instead.
+func (*RetrieveCredentialRequest) Descriptor() ([]byte, []int) {
+	return file_workload_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *RetrieveCredentialRequest) GetTarget() string {
+	if x != nil {
+		return x.Target
+	}
+	return ""
+}
+
+func (x *RetrieveCredentialRequest) GetCredentialType() CredentialType {
+	if x != nil {
+		return x.CredentialType
+	}
+	return CredentialType_CREDENTIAL_TYPE_UNSPECIFIED
+}
+
+func (x *RetrieveCredentialRequest) GetCredentialHint() string {
+	if x != nil {
+		return x.CredentialHint
+	}
+	return ""
+}
+
+func (x *RetrieveCredentialRequest) GetFreshnessKind() FreshnessKind {
+	if x != nil {
+		return x.FreshnessKind
+	}
+	return FreshnessKind_FRESHNESS_KIND_UNSPECIFIED
+}
+
+func (x *RetrieveCredentialRequest) GetFreshnessElement() []byte {
+	if x != nil {
+		return x.FreshnessElement
+	}
+	return nil
+}
+
+func (x *RetrieveCredentialRequest) GetCekPub() []byte {
+	if x != nil {
+		return x.CekPub
+	}
+	return nil
+}
+
+func (x *RetrieveCredentialRequest) GetEvidence() []byte {
+	if x != nil {
+		return x.Evidence
+	}
+	return nil
+}
+
+func (x *RetrieveCredentialRequest) GetEvidenceProfile() string {
+	if x != nil {
+		return x.EvidenceProfile
+	}
+	return ""
+}
+
+func (x *RetrieveCredentialRequest) GetBinding() *EvidenceBinding {
+	if x != nil {
+		return x.Binding
+	}
+	return nil
+}
+
+// The RetrieveCredentialResponse message carries the released credential,
+// sealed to the workload's Credential Encryption Key.
+type RetrieveCredentialResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. The encrypted credential bundle of TACRA (Sealing the
+	// Released Credential): a JSON container that names its HPKE suite and
+	// carries the encapsulated key, the ciphertext and the associated data,
+	// which names the credential group, the Target, the freshness element
+	// and the Credential Hint. Only the holder of the Credential Encryption
+	// Key can open it. The Workload API endpoint treats it as opaque.
+	EncryptedCredentialBundle []byte `protobuf:"bytes,1,opt,name=encrypted_credential_bundle,json=encryptedCredentialBundle,proto3" json:"encrypted_credential_bundle,omitempty"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
+}
+
+func (x *RetrieveCredentialResponse) Reset() {
+	*x = RetrieveCredentialResponse{}
+	mi := &file_workload_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RetrieveCredentialResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RetrieveCredentialResponse) ProtoMessage() {}
+
+func (x *RetrieveCredentialResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_workload_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RetrieveCredentialResponse.ProtoReflect.Descriptor instead.
+func (*RetrieveCredentialResponse) Descriptor() ([]byte, []int) {
+	return file_workload_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *RetrieveCredentialResponse) GetEncryptedCredentialBundle() []byte {
+	if x != nil {
+		return x.EncryptedCredentialBundle
+	}
+	return nil
+}
+
 var File_workload_proto protoreflect.FileDescriptor
 
 const file_workload_proto_rawDesc = "" +
@@ -995,7 +1830,71 @@ const file_workload_proto_rawDesc = "" +
 	"\abundles\x18\x01 \x03(\v2 .WITBundlesResponse.BundlesEntryR\abundles\x1a:\n" +
 	"\fBundlesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x012\xb6\x03\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"=\n" +
+	"\x0fEvidenceBinding\x12\x16\n" +
+	"\x06method\x18\x01 \x01(\tR\x06method\x12\x12\n" +
+	"\x04hash\x18\x02 \x01(\tR\x04hash\"\xa1\x01\n" +
+	"$InitiateCredentialAcquisitionRequest\x12\x16\n" +
+	"\x06target\x18\x01 \x01(\tR\x06target\x128\n" +
+	"\x0fcredential_type\x18\x02 \x01(\x0e2\x0f.CredentialTypeR\x0ecredentialType\x12'\n" +
+	"\x0fcredential_hint\x18\x03 \x01(\tR\x0ecredentialHint\"\xf0\x02\n" +
+	"%InitiateCredentialAcquisitionResponse\x12.\n" +
+	"\x04mode\x18\x01 \x01(\x0e2\x1a.CredentialAcquisitionModeR\x04mode\x125\n" +
+	"\x0efreshness_kind\x18\x02 \x01(\x0e2\x0e.FreshnessKindR\rfreshnessKind\x12)\n" +
+	"\x10freshness_handle\x18\x03 \x01(\fR\x0ffreshnessHandle\x12\x1d\n" +
+	"\n" +
+	"expires_in\x18\x04 \x01(\rR\texpiresIn\x12\x17\n" +
+	"\amax_age\x18\x05 \x01(\rR\x06maxAge\x12%\n" +
+	"\x0eacceptable_csk\x18\x06 \x03(\tR\racceptableCsk\x12%\n" +
+	"\x0eacceptable_cek\x18\a \x03(\tR\racceptableCek\x12/\n" +
+	"\x13acceptable_evidence\x18\b \x03(\tR\x12acceptableEvidence\"\xfd\x02\n" +
+	"\x17EnrollCredentialRequest\x12\x16\n" +
+	"\x06target\x18\x01 \x01(\tR\x06target\x128\n" +
+	"\x0fcredential_type\x18\x02 \x01(\x0e2\x0f.CredentialTypeR\x0ecredentialType\x12'\n" +
+	"\x0fcredential_hint\x18\x03 \x01(\tR\x0ecredentialHint\x125\n" +
+	"\x0efreshness_kind\x18\x04 \x01(\x0e2\x0e.FreshnessKindR\rfreshnessKind\x12+\n" +
+	"\x11freshness_element\x18\x05 \x01(\fR\x10freshnessElement\x12\x10\n" +
+	"\x03csr\x18\x06 \x01(\fR\x03csr\x12\x1a\n" +
+	"\bevidence\x18\a \x01(\fR\bevidence\x12)\n" +
+	"\x10evidence_profile\x18\b \x01(\tR\x0fevidenceProfile\x12*\n" +
+	"\abinding\x18\t \x01(\v2\x10.EvidenceBindingR\abinding\"\x80\x01\n" +
+	"\x18EnrollCredentialResponse\x12\x1b\n" +
+	"\tspiffe_id\x18\x01 \x01(\tR\bspiffeId\x12\x1b\n" +
+	"\tx509_svid\x18\x02 \x01(\fR\bx509Svid\x12\x16\n" +
+	"\x06bundle\x18\x03 \x01(\fR\x06bundle\x12\x12\n" +
+	"\x04hint\x18\x04 \x01(\tR\x04hint\"\x86\x03\n" +
+	"\x19RetrieveCredentialRequest\x12\x16\n" +
+	"\x06target\x18\x01 \x01(\tR\x06target\x128\n" +
+	"\x0fcredential_type\x18\x02 \x01(\x0e2\x0f.CredentialTypeR\x0ecredentialType\x12'\n" +
+	"\x0fcredential_hint\x18\x03 \x01(\tR\x0ecredentialHint\x125\n" +
+	"\x0efreshness_kind\x18\x04 \x01(\x0e2\x0e.FreshnessKindR\rfreshnessKind\x12+\n" +
+	"\x11freshness_element\x18\x05 \x01(\fR\x10freshnessElement\x12\x17\n" +
+	"\acek_pub\x18\x06 \x01(\fR\x06cekPub\x12\x1a\n" +
+	"\bevidence\x18\a \x01(\fR\bevidence\x12)\n" +
+	"\x10evidence_profile\x18\b \x01(\tR\x0fevidenceProfile\x12*\n" +
+	"\abinding\x18\t \x01(\v2\x10.EvidenceBindingR\abinding\"\\\n" +
+	"\x1aRetrieveCredentialResponse\x12>\n" +
+	"\x1bencrypted_credential_bundle\x18\x01 \x01(\fR\x19encryptedCredentialBundle*\xd9\x01\n" +
+	"\rFreshnessKind\x12\x1e\n" +
+	"\x1aFRESHNESS_KIND_UNSPECIFIED\x10\x00\x12\x1e\n" +
+	"\x1aFRESHNESS_KIND_ABSENT_NONE\x10\x01\x12#\n" +
+	"\x1fFRESHNESS_KIND_ABSENT_TIMESTAMP\x10\x02\x12\x1f\n" +
+	"\x1bFRESHNESS_KIND_ABSENT_EPOCH\x10\x03\x12 \n" +
+	"\x1cFRESHNESS_KIND_PRESENT_NONCE\x10\x04\x12 \n" +
+	"\x1cFRESHNESS_KIND_PRESENT_EPOCH\x10\x05*\x9a\x01\n" +
+	"\x19CredentialAcquisitionMode\x12+\n" +
+	"'CREDENTIAL_ACQUISITION_MODE_UNSPECIFIED\x10\x00\x12&\n" +
+	"\"CREDENTIAL_ACQUISITION_MODE_ENROLL\x10\x01\x12(\n" +
+	"$CREDENTIAL_ACQUISITION_MODE_RETRIEVE\x10\x02*\xed\x01\n" +
+	"\x0eCredentialType\x12\x1f\n" +
+	"\x1bCREDENTIAL_TYPE_UNSPECIFIED\x10\x00\x12\x18\n" +
+	"\x14CREDENTIAL_TYPE_X509\x10\x01\x12\x17\n" +
+	"\x13CREDENTIAL_TYPE_WIC\x10\x02\x12\x17\n" +
+	"\x13CREDENTIAL_TYPE_WIT\x10\x03\x12\x17\n" +
+	"\x13CREDENTIAL_TYPE_JWT\x10\x04\x12\x1b\n" +
+	"\x17CREDENTIAL_TYPE_API_KEY\x10\x05\x12\x17\n" +
+	"\x13CREDENTIAL_TYPE_PSK\x10\x06\x12\x1f\n" +
+	"\x1bCREDENTIAL_TYPE_PRIVATE_KEY\x10\a2\xbe\x05\n" +
 	"\x11SpiffeWorkloadAPI\x126\n" +
 	"\rFetchX509SVID\x12\x10.X509SVIDRequest\x1a\x11.X509SVIDResponse0\x01\x12?\n" +
 	"\x10FetchX509Bundles\x12\x13.X509BundlesRequest\x1a\x14.X509BundlesResponse0\x01\x121\n" +
@@ -1003,7 +1902,10 @@ const file_workload_proto_rawDesc = "" +
 	"\x0fFetchJWTBundles\x12\x12.JWTBundlesRequest\x1a\x13.JWTBundlesResponse0\x01\x12D\n" +
 	"\x0fValidateJWTSVID\x12\x17.ValidateJWTSVIDRequest\x1a\x18.ValidateJWTSVIDResponse\x123\n" +
 	"\fFetchWITSVID\x12\x0f.WITSVIDRequest\x1a\x10.WITSVIDResponse0\x01\x12<\n" +
-	"\x0fFetchWITBundles\x12\x12.WITBundlesRequest\x1a\x13.WITBundlesResponse0\x01B?Z=github.com/spiffe/go-spiffe/v2/proto/spiffe/workload;workloadb\x06proto3"
+	"\x0fFetchWITBundles\x12\x12.WITBundlesRequest\x1a\x13.WITBundlesResponse0\x01\x12n\n" +
+	"\x1dInitiateCredentialAcquisition\x12%.InitiateCredentialAcquisitionRequest\x1a&.InitiateCredentialAcquisitionResponse\x12G\n" +
+	"\x10EnrollCredential\x12\x18.EnrollCredentialRequest\x1a\x19.EnrollCredentialResponse\x12M\n" +
+	"\x12RetrieveCredential\x12\x1a.RetrieveCredentialRequest\x1a\x1b.RetrieveCredentialResponseB?Z=github.com/spiffe/go-spiffe/v2/proto/spiffe/workload;workloadb\x06proto3"
 
 var (
 	file_workload_proto_rawDescOnce sync.Once
@@ -1017,59 +1919,85 @@ func file_workload_proto_rawDescGZIP() []byte {
 	return file_workload_proto_rawDescData
 }
 
-var file_workload_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
+var file_workload_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_workload_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
 var file_workload_proto_goTypes = []any{
-	(*X509SVIDRequest)(nil),         // 0: X509SVIDRequest
-	(*X509SVIDResponse)(nil),        // 1: X509SVIDResponse
-	(*X509SVID)(nil),                // 2: X509SVID
-	(*X509BundlesRequest)(nil),      // 3: X509BundlesRequest
-	(*X509BundlesResponse)(nil),     // 4: X509BundlesResponse
-	(*JWTSVIDRequest)(nil),          // 5: JWTSVIDRequest
-	(*JWTSVIDResponse)(nil),         // 6: JWTSVIDResponse
-	(*JWTSVID)(nil),                 // 7: JWTSVID
-	(*JWTBundlesRequest)(nil),       // 8: JWTBundlesRequest
-	(*JWTBundlesResponse)(nil),      // 9: JWTBundlesResponse
-	(*ValidateJWTSVIDRequest)(nil),  // 10: ValidateJWTSVIDRequest
-	(*ValidateJWTSVIDResponse)(nil), // 11: ValidateJWTSVIDResponse
-	(*WITSVIDRequest)(nil),          // 12: WITSVIDRequest
-	(*WITSVIDResponse)(nil),         // 13: WITSVIDResponse
-	(*WITSVID)(nil),                 // 14: WITSVID
-	(*WITBundlesRequest)(nil),       // 15: WITBundlesRequest
-	(*WITBundlesResponse)(nil),      // 16: WITBundlesResponse
-	nil,                             // 17: X509SVIDResponse.FederatedBundlesEntry
-	nil,                             // 18: X509BundlesResponse.BundlesEntry
-	nil,                             // 19: JWTBundlesResponse.BundlesEntry
-	nil,                             // 20: WITBundlesResponse.BundlesEntry
-	(*structpb.Struct)(nil),         // 21: google.protobuf.Struct
+	(FreshnessKind)(0),                            // 0: FreshnessKind
+	(CredentialAcquisitionMode)(0),                // 1: CredentialAcquisitionMode
+	(CredentialType)(0),                           // 2: CredentialType
+	(*X509SVIDRequest)(nil),                       // 3: X509SVIDRequest
+	(*X509SVIDResponse)(nil),                      // 4: X509SVIDResponse
+	(*X509SVID)(nil),                              // 5: X509SVID
+	(*X509BundlesRequest)(nil),                    // 6: X509BundlesRequest
+	(*X509BundlesResponse)(nil),                   // 7: X509BundlesResponse
+	(*JWTSVIDRequest)(nil),                        // 8: JWTSVIDRequest
+	(*JWTSVIDResponse)(nil),                       // 9: JWTSVIDResponse
+	(*JWTSVID)(nil),                               // 10: JWTSVID
+	(*JWTBundlesRequest)(nil),                     // 11: JWTBundlesRequest
+	(*JWTBundlesResponse)(nil),                    // 12: JWTBundlesResponse
+	(*ValidateJWTSVIDRequest)(nil),                // 13: ValidateJWTSVIDRequest
+	(*ValidateJWTSVIDResponse)(nil),               // 14: ValidateJWTSVIDResponse
+	(*WITSVIDRequest)(nil),                        // 15: WITSVIDRequest
+	(*WITSVIDResponse)(nil),                       // 16: WITSVIDResponse
+	(*WITSVID)(nil),                               // 17: WITSVID
+	(*WITBundlesRequest)(nil),                     // 18: WITBundlesRequest
+	(*WITBundlesResponse)(nil),                    // 19: WITBundlesResponse
+	(*EvidenceBinding)(nil),                       // 20: EvidenceBinding
+	(*InitiateCredentialAcquisitionRequest)(nil),  // 21: InitiateCredentialAcquisitionRequest
+	(*InitiateCredentialAcquisitionResponse)(nil), // 22: InitiateCredentialAcquisitionResponse
+	(*EnrollCredentialRequest)(nil),               // 23: EnrollCredentialRequest
+	(*EnrollCredentialResponse)(nil),              // 24: EnrollCredentialResponse
+	(*RetrieveCredentialRequest)(nil),             // 25: RetrieveCredentialRequest
+	(*RetrieveCredentialResponse)(nil),            // 26: RetrieveCredentialResponse
+	nil,                                           // 27: X509SVIDResponse.FederatedBundlesEntry
+	nil,                                           // 28: X509BundlesResponse.BundlesEntry
+	nil,                                           // 29: JWTBundlesResponse.BundlesEntry
+	nil,                                           // 30: WITBundlesResponse.BundlesEntry
+	(*structpb.Struct)(nil),                       // 31: google.protobuf.Struct
 }
 var file_workload_proto_depIdxs = []int32{
-	2,  // 0: X509SVIDResponse.svids:type_name -> X509SVID
-	17, // 1: X509SVIDResponse.federated_bundles:type_name -> X509SVIDResponse.FederatedBundlesEntry
-	18, // 2: X509BundlesResponse.bundles:type_name -> X509BundlesResponse.BundlesEntry
-	7,  // 3: JWTSVIDResponse.svids:type_name -> JWTSVID
-	19, // 4: JWTBundlesResponse.bundles:type_name -> JWTBundlesResponse.BundlesEntry
-	21, // 5: ValidateJWTSVIDResponse.claims:type_name -> google.protobuf.Struct
-	14, // 6: WITSVIDResponse.svids:type_name -> WITSVID
-	20, // 7: WITBundlesResponse.bundles:type_name -> WITBundlesResponse.BundlesEntry
-	0,  // 8: SpiffeWorkloadAPI.FetchX509SVID:input_type -> X509SVIDRequest
-	3,  // 9: SpiffeWorkloadAPI.FetchX509Bundles:input_type -> X509BundlesRequest
-	5,  // 10: SpiffeWorkloadAPI.FetchJWTSVID:input_type -> JWTSVIDRequest
-	8,  // 11: SpiffeWorkloadAPI.FetchJWTBundles:input_type -> JWTBundlesRequest
-	10, // 12: SpiffeWorkloadAPI.ValidateJWTSVID:input_type -> ValidateJWTSVIDRequest
-	12, // 13: SpiffeWorkloadAPI.FetchWITSVID:input_type -> WITSVIDRequest
-	15, // 14: SpiffeWorkloadAPI.FetchWITBundles:input_type -> WITBundlesRequest
-	1,  // 15: SpiffeWorkloadAPI.FetchX509SVID:output_type -> X509SVIDResponse
-	4,  // 16: SpiffeWorkloadAPI.FetchX509Bundles:output_type -> X509BundlesResponse
-	6,  // 17: SpiffeWorkloadAPI.FetchJWTSVID:output_type -> JWTSVIDResponse
-	9,  // 18: SpiffeWorkloadAPI.FetchJWTBundles:output_type -> JWTBundlesResponse
-	11, // 19: SpiffeWorkloadAPI.ValidateJWTSVID:output_type -> ValidateJWTSVIDResponse
-	13, // 20: SpiffeWorkloadAPI.FetchWITSVID:output_type -> WITSVIDResponse
-	16, // 21: SpiffeWorkloadAPI.FetchWITBundles:output_type -> WITBundlesResponse
-	15, // [15:22] is the sub-list for method output_type
-	8,  // [8:15] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	5,  // 0: X509SVIDResponse.svids:type_name -> X509SVID
+	27, // 1: X509SVIDResponse.federated_bundles:type_name -> X509SVIDResponse.FederatedBundlesEntry
+	28, // 2: X509BundlesResponse.bundles:type_name -> X509BundlesResponse.BundlesEntry
+	10, // 3: JWTSVIDResponse.svids:type_name -> JWTSVID
+	29, // 4: JWTBundlesResponse.bundles:type_name -> JWTBundlesResponse.BundlesEntry
+	31, // 5: ValidateJWTSVIDResponse.claims:type_name -> google.protobuf.Struct
+	17, // 6: WITSVIDResponse.svids:type_name -> WITSVID
+	30, // 7: WITBundlesResponse.bundles:type_name -> WITBundlesResponse.BundlesEntry
+	2,  // 8: InitiateCredentialAcquisitionRequest.credential_type:type_name -> CredentialType
+	1,  // 9: InitiateCredentialAcquisitionResponse.mode:type_name -> CredentialAcquisitionMode
+	0,  // 10: InitiateCredentialAcquisitionResponse.freshness_kind:type_name -> FreshnessKind
+	2,  // 11: EnrollCredentialRequest.credential_type:type_name -> CredentialType
+	0,  // 12: EnrollCredentialRequest.freshness_kind:type_name -> FreshnessKind
+	20, // 13: EnrollCredentialRequest.binding:type_name -> EvidenceBinding
+	2,  // 14: RetrieveCredentialRequest.credential_type:type_name -> CredentialType
+	0,  // 15: RetrieveCredentialRequest.freshness_kind:type_name -> FreshnessKind
+	20, // 16: RetrieveCredentialRequest.binding:type_name -> EvidenceBinding
+	3,  // 17: SpiffeWorkloadAPI.FetchX509SVID:input_type -> X509SVIDRequest
+	6,  // 18: SpiffeWorkloadAPI.FetchX509Bundles:input_type -> X509BundlesRequest
+	8,  // 19: SpiffeWorkloadAPI.FetchJWTSVID:input_type -> JWTSVIDRequest
+	11, // 20: SpiffeWorkloadAPI.FetchJWTBundles:input_type -> JWTBundlesRequest
+	13, // 21: SpiffeWorkloadAPI.ValidateJWTSVID:input_type -> ValidateJWTSVIDRequest
+	15, // 22: SpiffeWorkloadAPI.FetchWITSVID:input_type -> WITSVIDRequest
+	18, // 23: SpiffeWorkloadAPI.FetchWITBundles:input_type -> WITBundlesRequest
+	21, // 24: SpiffeWorkloadAPI.InitiateCredentialAcquisition:input_type -> InitiateCredentialAcquisitionRequest
+	23, // 25: SpiffeWorkloadAPI.EnrollCredential:input_type -> EnrollCredentialRequest
+	25, // 26: SpiffeWorkloadAPI.RetrieveCredential:input_type -> RetrieveCredentialRequest
+	4,  // 27: SpiffeWorkloadAPI.FetchX509SVID:output_type -> X509SVIDResponse
+	7,  // 28: SpiffeWorkloadAPI.FetchX509Bundles:output_type -> X509BundlesResponse
+	9,  // 29: SpiffeWorkloadAPI.FetchJWTSVID:output_type -> JWTSVIDResponse
+	12, // 30: SpiffeWorkloadAPI.FetchJWTBundles:output_type -> JWTBundlesResponse
+	14, // 31: SpiffeWorkloadAPI.ValidateJWTSVID:output_type -> ValidateJWTSVIDResponse
+	16, // 32: SpiffeWorkloadAPI.FetchWITSVID:output_type -> WITSVIDResponse
+	19, // 33: SpiffeWorkloadAPI.FetchWITBundles:output_type -> WITBundlesResponse
+	22, // 34: SpiffeWorkloadAPI.InitiateCredentialAcquisition:output_type -> InitiateCredentialAcquisitionResponse
+	24, // 35: SpiffeWorkloadAPI.EnrollCredential:output_type -> EnrollCredentialResponse
+	26, // 36: SpiffeWorkloadAPI.RetrieveCredential:output_type -> RetrieveCredentialResponse
+	27, // [27:37] is the sub-list for method output_type
+	17, // [17:27] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_workload_proto_init() }
@@ -1082,13 +2010,14 @@ func file_workload_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_workload_proto_rawDesc), len(file_workload_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   21,
+			NumEnums:      3,
+			NumMessages:   28,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_workload_proto_goTypes,
 		DependencyIndexes: file_workload_proto_depIdxs,
+		EnumInfos:         file_workload_proto_enumTypes,
 		MessageInfos:      file_workload_proto_msgTypes,
 	}.Build()
 	File_workload_proto = out.File

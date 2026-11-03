@@ -12,12 +12,16 @@ import (
 	"github.com/spiffe/go-spiffe/v2/bundle/x509bundle"
 	"github.com/spiffe/go-spiffe/v2/internal/test"
 	"github.com/spiffe/go-spiffe/v2/internal/test/fakeworkloadapi"
+	"github.com/spiffe/go-spiffe/v2/internal/x509util"
 	"github.com/spiffe/go-spiffe/v2/proto/spiffe/workload"
 	"github.com/spiffe/go-spiffe/v2/spiffeid"
 	"github.com/spiffe/go-spiffe/v2/svid/jwtsvid"
 	"github.com/spiffe/go-spiffe/v2/svid/x509svid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 )
 
 var (
@@ -647,3 +651,164 @@ func (b testBackoff) Next() time.Duration {
 }
 
 func (b testBackoff) Reset() {}
+
+func TestInitiateCredentialAcquisition(t *testing.T) {
+	wl := fakeworkloadapi.New(t)
+	defer wl.Stop()
+	c, err := New(context.Background(), WithAddr(wl.Addr()))
+	require.NoError(t, err)
+	defer c.Close()
+
+	req := &workload.InitiateCredentialAcquisitionRequest{
+		Target:         td.IDString(),
+		CredentialType: workload.CredentialType_CREDENTIAL_TYPE_X509,
+		CredentialHint: hintInternal,
+	}
+
+	t.Run("not supported by the endpoint", func(t *testing.T) {
+		resp, err := c.InitiateCredentialAcquisition(context.Background(), req)
+		require.Nil(t, resp)
+		require.Equal(t, codes.Unimplemented, status.Code(err))
+	})
+
+	t.Run("target is required", func(t *testing.T) {
+		resp, err := c.InitiateCredentialAcquisition(context.Background(), &workload.InitiateCredentialAcquisitionRequest{})
+		require.Nil(t, resp)
+		require.Equal(t, codes.InvalidArgument, status.Code(err))
+	})
+
+	t.Run("response is returned as sent", func(t *testing.T) {
+		want := &workload.InitiateCredentialAcquisitionResponse{
+			Mode:               workload.CredentialAcquisitionMode_CREDENTIAL_ACQUISITION_MODE_ENROLL,
+			FreshnessKind:      workload.FreshnessKind_FRESHNESS_KIND_PRESENT_NONCE,
+			FreshnessHandle:    []byte("0123456789abcdef0123456789abcdef"),
+			ExpiresIn:          300,
+			AcceptableCsk:      []string{"ecdsa-p256-sha256"},
+			AcceptableEvidence: []string{"application/vnd.veraison.tsm-report+cbor"},
+		}
+		wl.SetInitiateCredentialAcquisitionResponse(want, nil)
+
+		resp, err := c.InitiateCredentialAcquisition(context.Background(), req)
+		require.NoError(t, err)
+		assert.True(t, proto.Equal(want, resp), "response differs from what the endpoint sent")
+		assert.True(t, proto.Equal(req, wl.LastInitiateCredentialAcquisitionRequest()), "request differs from what was sent")
+	})
+
+	t.Run("error is returned as sent", func(t *testing.T) {
+		wl.SetInitiateCredentialAcquisitionResponse(nil, status.Error(codes.PermissionDenied, "unsupported target"))
+
+		resp, err := c.InitiateCredentialAcquisition(context.Background(), req)
+		require.Nil(t, resp)
+		require.Equal(t, codes.PermissionDenied, status.Code(err))
+	})
+}
+
+func TestEnrollCredential(t *testing.T) {
+	ca := test.NewCA(t, td)
+	wl := fakeworkloadapi.New(t)
+	defer wl.Stop()
+	c, err := New(context.Background(), WithAddr(wl.Addr()))
+	require.NoError(t, err)
+	defer c.Close()
+
+	handle := []byte("0123456789abcdef0123456789abcdef")
+	req := &workload.EnrollCredentialRequest{
+		Target:           td.IDString(),
+		CredentialType:   workload.CredentialType_CREDENTIAL_TYPE_X509,
+		FreshnessKind:    workload.FreshnessKind_FRESHNESS_KIND_PRESENT_NONCE,
+		FreshnessElement: handle,
+		Csr:              []byte("csr"),
+		Evidence:         []byte("evidence"),
+		EvidenceProfile:  "application/vnd.veraison.tsm-report+cbor",
+		Binding:          &workload.EvidenceBinding{Method: "binding-input", Hash: "sha512"},
+	}
+
+	t.Run("not supported by the endpoint", func(t *testing.T) {
+		resp, err := c.EnrollCredential(context.Background(), req)
+		require.Nil(t, resp)
+		require.Equal(t, codes.Unimplemented, status.Code(err))
+	})
+
+	t.Run("csr and evidence are required", func(t *testing.T) {
+		resp, err := c.EnrollCredential(context.Background(), &workload.EnrollCredentialRequest{Target: td.IDString()})
+		require.Nil(t, resp)
+		require.Equal(t, codes.InvalidArgument, status.Code(err))
+	})
+
+	t.Run("response is returned as sent", func(t *testing.T) {
+		svid := ca.CreateX509SVID(fooID, test.WithHint(hintInternal))
+		want := &workload.EnrollCredentialResponse{
+			SpiffeId: fooID.String(),
+			X509Svid: x509util.ConcatRawCertsFromCerts(svid.Certificates),
+			Bundle:   x509util.ConcatRawCertsFromCerts(ca.X509Bundle().X509Authorities()),
+			Hint:     hintInternal,
+		}
+		wl.SetEnrollCredentialResponse(want, nil)
+
+		resp, err := c.EnrollCredential(context.Background(), req)
+		require.NoError(t, err)
+		assert.True(t, proto.Equal(want, resp), "response differs from what the endpoint sent")
+		assert.True(t, proto.Equal(req, wl.LastEnrollCredentialRequest()), "request differs from what was sent")
+
+		certs, err := x509.ParseCertificates(resp.X509Svid)
+		require.NoError(t, err)
+		require.Len(t, certs, 1)
+		assert.Equal(t, svid.Certificates[0].Raw, certs[0].Raw)
+	})
+
+	t.Run("error is returned as sent", func(t *testing.T) {
+		wl.SetEnrollCredentialResponse(nil, status.Error(codes.InvalidArgument, "binding mismatch"))
+
+		resp, err := c.EnrollCredential(context.Background(), req)
+		require.Nil(t, resp)
+		require.Equal(t, codes.InvalidArgument, status.Code(err))
+	})
+}
+
+func TestRetrieveCredential(t *testing.T) {
+	wl := fakeworkloadapi.New(t)
+	defer wl.Stop()
+	c, err := New(context.Background(), WithAddr(wl.Addr()))
+	require.NoError(t, err)
+	defer c.Close()
+
+	req := &workload.RetrieveCredentialRequest{
+		Target:           "https://vault.example.org",
+		CredentialType:   workload.CredentialType_CREDENTIAL_TYPE_JWT,
+		FreshnessKind:    workload.FreshnessKind_FRESHNESS_KIND_PRESENT_NONCE,
+		FreshnessElement: []byte("0123456789abcdef0123456789abcdef"),
+		CekPub:           []byte("cek_pub"),
+		Evidence:         []byte("evidence"),
+		Binding:          &workload.EvidenceBinding{Method: "binding-input", Hash: "sha512"},
+	}
+
+	t.Run("not supported by the endpoint", func(t *testing.T) {
+		resp, err := c.RetrieveCredential(context.Background(), req)
+		require.Nil(t, resp)
+		require.Equal(t, codes.Unimplemented, status.Code(err))
+	})
+
+	t.Run("cek_pub and evidence are required", func(t *testing.T) {
+		resp, err := c.RetrieveCredential(context.Background(), &workload.RetrieveCredentialRequest{Target: req.Target})
+		require.Nil(t, resp)
+		require.Equal(t, codes.InvalidArgument, status.Code(err))
+	})
+
+	t.Run("response is returned as sent", func(t *testing.T) {
+		want := &workload.RetrieveCredentialResponse{EncryptedCredentialBundle: []byte(`{"container":"hpke-base"}`)}
+		wl.SetRetrieveCredentialResponse(want, nil)
+
+		resp, err := c.RetrieveCredential(context.Background(), req)
+		require.NoError(t, err)
+		assert.True(t, proto.Equal(want, resp), "response differs from what the endpoint sent")
+		assert.True(t, proto.Equal(req, wl.LastRetrieveCredentialRequest()), "request differs from what was sent")
+	})
+
+	t.Run("error is returned as sent", func(t *testing.T) {
+		wl.SetRetrieveCredentialResponse(nil, status.Error(codes.PermissionDenied, "unsupported credential type"))
+
+		resp, err := c.RetrieveCredential(context.Background(), req)
+		require.Nil(t, resp)
+		require.Equal(t, codes.PermissionDenied, status.Code(err))
+	})
+}

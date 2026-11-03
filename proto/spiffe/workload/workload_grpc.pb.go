@@ -19,13 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	SpiffeWorkloadAPI_FetchX509SVID_FullMethodName    = "/SpiffeWorkloadAPI/FetchX509SVID"
-	SpiffeWorkloadAPI_FetchX509Bundles_FullMethodName = "/SpiffeWorkloadAPI/FetchX509Bundles"
-	SpiffeWorkloadAPI_FetchJWTSVID_FullMethodName     = "/SpiffeWorkloadAPI/FetchJWTSVID"
-	SpiffeWorkloadAPI_FetchJWTBundles_FullMethodName  = "/SpiffeWorkloadAPI/FetchJWTBundles"
-	SpiffeWorkloadAPI_ValidateJWTSVID_FullMethodName  = "/SpiffeWorkloadAPI/ValidateJWTSVID"
-	SpiffeWorkloadAPI_FetchWITSVID_FullMethodName     = "/SpiffeWorkloadAPI/FetchWITSVID"
-	SpiffeWorkloadAPI_FetchWITBundles_FullMethodName  = "/SpiffeWorkloadAPI/FetchWITBundles"
+	SpiffeWorkloadAPI_FetchX509SVID_FullMethodName                 = "/SpiffeWorkloadAPI/FetchX509SVID"
+	SpiffeWorkloadAPI_FetchX509Bundles_FullMethodName              = "/SpiffeWorkloadAPI/FetchX509Bundles"
+	SpiffeWorkloadAPI_FetchJWTSVID_FullMethodName                  = "/SpiffeWorkloadAPI/FetchJWTSVID"
+	SpiffeWorkloadAPI_FetchJWTBundles_FullMethodName               = "/SpiffeWorkloadAPI/FetchJWTBundles"
+	SpiffeWorkloadAPI_ValidateJWTSVID_FullMethodName               = "/SpiffeWorkloadAPI/ValidateJWTSVID"
+	SpiffeWorkloadAPI_FetchWITSVID_FullMethodName                  = "/SpiffeWorkloadAPI/FetchWITSVID"
+	SpiffeWorkloadAPI_FetchWITBundles_FullMethodName               = "/SpiffeWorkloadAPI/FetchWITBundles"
+	SpiffeWorkloadAPI_InitiateCredentialAcquisition_FullMethodName = "/SpiffeWorkloadAPI/InitiateCredentialAcquisition"
+	SpiffeWorkloadAPI_EnrollCredential_FullMethodName              = "/SpiffeWorkloadAPI/EnrollCredential"
+	SpiffeWorkloadAPI_RetrieveCredential_FullMethodName            = "/SpiffeWorkloadAPI/RetrieveCredential"
 )
 
 // SpiffeWorkloadAPIClient is the client API for SpiffeWorkloadAPI service.
@@ -61,6 +64,21 @@ type SpiffeWorkloadAPIClient interface {
 	// of the trust domain. As this information changes, subsequent messages
 	// will be streamed from the server.
 	FetchWITBundles(ctx context.Context, in *WITBundlesRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[WITBundlesResponse], error)
+	// Initiates attested credential acquisition for a Target: returns the
+	// Freshness Kind and, for present-nonce and present-epoch, the Freshness
+	// Handle the workload embeds in its Evidence, with the Credential
+	// Acquisition Mode and the algorithms the Credential Authority or the
+	// Secret Vault accepts (TACRA, Initiate-Credential-Acquisition).
+	InitiateCredentialAcquisition(ctx context.Context, in *InitiateCredentialAcquisitionRequest, opts ...grpc.CallOption) (*InitiateCredentialAcquisitionResponse, error)
+	// Enrolls a new proof-of-possession credential: an X509-SVID for a
+	// Credential Signing Key the workload generated, from a PKCS#10 CSR and
+	// Evidence bound to that CSR (TACRA, Enroll-Credential). The private key
+	// stays with the workload.
+	EnrollCredential(ctx context.Context, in *EnrollCredentialRequest, opts ...grpc.CallOption) (*EnrollCredentialResponse, error)
+	// Retrieves a pre-existing credential, sealed to a Credential Encryption
+	// Key the workload generated, from Evidence bound to that key (TACRA,
+	// Retrieve-Credential). Only the workload can open the returned bundle.
+	RetrieveCredential(ctx context.Context, in *RetrieveCredentialRequest, opts ...grpc.CallOption) (*RetrieveCredentialResponse, error)
 }
 
 type spiffeWorkloadAPIClient struct {
@@ -186,6 +204,36 @@ func (c *spiffeWorkloadAPIClient) FetchWITBundles(ctx context.Context, in *WITBu
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type SpiffeWorkloadAPI_FetchWITBundlesClient = grpc.ServerStreamingClient[WITBundlesResponse]
 
+func (c *spiffeWorkloadAPIClient) InitiateCredentialAcquisition(ctx context.Context, in *InitiateCredentialAcquisitionRequest, opts ...grpc.CallOption) (*InitiateCredentialAcquisitionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InitiateCredentialAcquisitionResponse)
+	err := c.cc.Invoke(ctx, SpiffeWorkloadAPI_InitiateCredentialAcquisition_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *spiffeWorkloadAPIClient) EnrollCredential(ctx context.Context, in *EnrollCredentialRequest, opts ...grpc.CallOption) (*EnrollCredentialResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(EnrollCredentialResponse)
+	err := c.cc.Invoke(ctx, SpiffeWorkloadAPI_EnrollCredential_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *spiffeWorkloadAPIClient) RetrieveCredential(ctx context.Context, in *RetrieveCredentialRequest, opts ...grpc.CallOption) (*RetrieveCredentialResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RetrieveCredentialResponse)
+	err := c.cc.Invoke(ctx, SpiffeWorkloadAPI_RetrieveCredential_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SpiffeWorkloadAPIServer is the server API for SpiffeWorkloadAPI service.
 // All implementations must embed UnimplementedSpiffeWorkloadAPIServer
 // for forward compatibility.
@@ -219,6 +267,21 @@ type SpiffeWorkloadAPIServer interface {
 	// of the trust domain. As this information changes, subsequent messages
 	// will be streamed from the server.
 	FetchWITBundles(*WITBundlesRequest, grpc.ServerStreamingServer[WITBundlesResponse]) error
+	// Initiates attested credential acquisition for a Target: returns the
+	// Freshness Kind and, for present-nonce and present-epoch, the Freshness
+	// Handle the workload embeds in its Evidence, with the Credential
+	// Acquisition Mode and the algorithms the Credential Authority or the
+	// Secret Vault accepts (TACRA, Initiate-Credential-Acquisition).
+	InitiateCredentialAcquisition(context.Context, *InitiateCredentialAcquisitionRequest) (*InitiateCredentialAcquisitionResponse, error)
+	// Enrolls a new proof-of-possession credential: an X509-SVID for a
+	// Credential Signing Key the workload generated, from a PKCS#10 CSR and
+	// Evidence bound to that CSR (TACRA, Enroll-Credential). The private key
+	// stays with the workload.
+	EnrollCredential(context.Context, *EnrollCredentialRequest) (*EnrollCredentialResponse, error)
+	// Retrieves a pre-existing credential, sealed to a Credential Encryption
+	// Key the workload generated, from Evidence bound to that key (TACRA,
+	// Retrieve-Credential). Only the workload can open the returned bundle.
+	RetrieveCredential(context.Context, *RetrieveCredentialRequest) (*RetrieveCredentialResponse, error)
 	mustEmbedUnimplementedSpiffeWorkloadAPIServer()
 }
 
@@ -249,6 +312,15 @@ func (UnimplementedSpiffeWorkloadAPIServer) FetchWITSVID(*WITSVIDRequest, grpc.S
 }
 func (UnimplementedSpiffeWorkloadAPIServer) FetchWITBundles(*WITBundlesRequest, grpc.ServerStreamingServer[WITBundlesResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method FetchWITBundles not implemented")
+}
+func (UnimplementedSpiffeWorkloadAPIServer) InitiateCredentialAcquisition(context.Context, *InitiateCredentialAcquisitionRequest) (*InitiateCredentialAcquisitionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method InitiateCredentialAcquisition not implemented")
+}
+func (UnimplementedSpiffeWorkloadAPIServer) EnrollCredential(context.Context, *EnrollCredentialRequest) (*EnrollCredentialResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EnrollCredential not implemented")
+}
+func (UnimplementedSpiffeWorkloadAPIServer) RetrieveCredential(context.Context, *RetrieveCredentialRequest) (*RetrieveCredentialResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RetrieveCredential not implemented")
 }
 func (UnimplementedSpiffeWorkloadAPIServer) mustEmbedUnimplementedSpiffeWorkloadAPIServer() {}
 func (UnimplementedSpiffeWorkloadAPIServer) testEmbeddedByValue()                           {}
@@ -362,6 +434,60 @@ func _SpiffeWorkloadAPI_FetchWITBundles_Handler(srv interface{}, stream grpc.Ser
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type SpiffeWorkloadAPI_FetchWITBundlesServer = grpc.ServerStreamingServer[WITBundlesResponse]
 
+func _SpiffeWorkloadAPI_InitiateCredentialAcquisition_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InitiateCredentialAcquisitionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SpiffeWorkloadAPIServer).InitiateCredentialAcquisition(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SpiffeWorkloadAPI_InitiateCredentialAcquisition_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SpiffeWorkloadAPIServer).InitiateCredentialAcquisition(ctx, req.(*InitiateCredentialAcquisitionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SpiffeWorkloadAPI_EnrollCredential_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EnrollCredentialRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SpiffeWorkloadAPIServer).EnrollCredential(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SpiffeWorkloadAPI_EnrollCredential_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SpiffeWorkloadAPIServer).EnrollCredential(ctx, req.(*EnrollCredentialRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SpiffeWorkloadAPI_RetrieveCredential_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RetrieveCredentialRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SpiffeWorkloadAPIServer).RetrieveCredential(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SpiffeWorkloadAPI_RetrieveCredential_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SpiffeWorkloadAPIServer).RetrieveCredential(ctx, req.(*RetrieveCredentialRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SpiffeWorkloadAPI_ServiceDesc is the grpc.ServiceDesc for SpiffeWorkloadAPI service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -376,6 +502,18 @@ var SpiffeWorkloadAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ValidateJWTSVID",
 			Handler:    _SpiffeWorkloadAPI_ValidateJWTSVID_Handler,
+		},
+		{
+			MethodName: "InitiateCredentialAcquisition",
+			Handler:    _SpiffeWorkloadAPI_InitiateCredentialAcquisition_Handler,
+		},
+		{
+			MethodName: "EnrollCredential",
+			Handler:    _SpiffeWorkloadAPI_EnrollCredential_Handler,
+		},
+		{
+			MethodName: "RetrieveCredential",
+			Handler:    _SpiffeWorkloadAPI_RetrieveCredential_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
