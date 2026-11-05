@@ -66,18 +66,18 @@ type SpiffeWorkloadAPIClient interface {
 	FetchWITBundles(ctx context.Context, in *WITBundlesRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[WITBundlesResponse], error)
 	// Initiates attested credential acquisition for a Target: returns the
 	// Freshness Kind and, for present-nonce and present-epoch, the Freshness
-	// Handle the workload embeds in its Evidence, with the Credential
+	// Handle the Workload embeds in its Evidence, with the Credential
 	// Acquisition Mode and the algorithms the Credential Authority or the
 	// Secret Vault accepts (TACRA, Initiate-Credential-Acquisition).
 	InitiateCredentialAcquisition(ctx context.Context, in *InitiateCredentialAcquisitionRequest, opts ...grpc.CallOption) (*InitiateCredentialAcquisitionResponse, error)
 	// Enrolls a new proof-of-possession credential: an X509-SVID for a
-	// Credential Signing Key the workload generated, from a PKCS#10 CSR and
+	// Credential Signing Key the Workload generated, from a PKCS#10 CSR and
 	// Evidence bound to that CSR (TACRA, Enroll-Credential). The private key
 	// stays with the workload.
 	EnrollCredential(ctx context.Context, in *EnrollCredentialRequest, opts ...grpc.CallOption) (*EnrollCredentialResponse, error)
 	// Retrieves a pre-existing credential, sealed to a Credential Encryption
-	// Key the workload generated, from Evidence bound to that key (TACRA,
-	// Retrieve-Credential). Only the workload can open the returned bundle.
+	// Key the Workload generated, from Evidence bound to that key (TACRA,
+	// Retrieve-Credential). Only the Workload can open the returned bundle.
 	RetrieveCredential(ctx context.Context, in *RetrieveCredentialRequest, opts ...grpc.CallOption) (*RetrieveCredentialResponse, error)
 }
 
@@ -269,18 +269,18 @@ type SpiffeWorkloadAPIServer interface {
 	FetchWITBundles(*WITBundlesRequest, grpc.ServerStreamingServer[WITBundlesResponse]) error
 	// Initiates attested credential acquisition for a Target: returns the
 	// Freshness Kind and, for present-nonce and present-epoch, the Freshness
-	// Handle the workload embeds in its Evidence, with the Credential
+	// Handle the Workload embeds in its Evidence, with the Credential
 	// Acquisition Mode and the algorithms the Credential Authority or the
 	// Secret Vault accepts (TACRA, Initiate-Credential-Acquisition).
 	InitiateCredentialAcquisition(context.Context, *InitiateCredentialAcquisitionRequest) (*InitiateCredentialAcquisitionResponse, error)
 	// Enrolls a new proof-of-possession credential: an X509-SVID for a
-	// Credential Signing Key the workload generated, from a PKCS#10 CSR and
+	// Credential Signing Key the Workload generated, from a PKCS#10 CSR and
 	// Evidence bound to that CSR (TACRA, Enroll-Credential). The private key
 	// stays with the workload.
 	EnrollCredential(context.Context, *EnrollCredentialRequest) (*EnrollCredentialResponse, error)
 	// Retrieves a pre-existing credential, sealed to a Credential Encryption
-	// Key the workload generated, from Evidence bound to that key (TACRA,
-	// Retrieve-Credential). Only the workload can open the returned bundle.
+	// Key the Workload generated, from Evidence bound to that key (TACRA,
+	// Retrieve-Credential). Only the Workload can open the returned bundle.
 	RetrieveCredential(context.Context, *RetrieveCredentialRequest) (*RetrieveCredentialResponse, error)
 	mustEmbedUnimplementedSpiffeWorkloadAPIServer()
 }

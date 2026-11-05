@@ -55,34 +55,34 @@ service SpiffeWorkloadAPI {
     /////////////////////////////////////////////////////////////////////////
     //
     // The three calls of the Credential Acquisition API of
-    // draft-novak-rats-tacra (TACRA), by which a workload running in a
+    // draft-novak-rats-tacra (TACRA), by which a Workload running in a
     // hardware-based trusted execution environment obtains a credential
-    // bound to Evidence of its own, for a key the workload generates and
+    // bound to Evidence of its own, for a key the Workload generates and
     // never hands out. The Workload API endpoint is the Credential
-    // Acquisition System Client of TACRA: a conduit between the workload,
+    // Acquisition System Client of TACRA: a conduit between the Workload,
     // which is the Attester, and the Credential Acquisition System Server.
-    // The endpoint attests the calling workload as it does for FetchX509SVID,
-    // and the credential it conveys is one the workload is entitled to.
+    // The endpoint attests the calling Workload as it does for FetchX509SVID,
+    // and the credential it conveys is one the Workload is entitled to.
     //
     // Must return Unimplemented where the Workload API endpoint does not
     // support attested credential acquisition.
 
     // Initiates attested credential acquisition for a Target: returns the
     // Freshness Kind and, for present-nonce and present-epoch, the Freshness
-    // Handle the workload embeds in its Evidence, with the Credential
+    // Handle the Workload embeds in its Evidence, with the Credential
     // Acquisition Mode and the algorithms the Credential Authority or the
     // Secret Vault accepts (TACRA, Initiate-Credential-Acquisition).
     rpc InitiateCredentialAcquisition(InitiateCredentialAcquisitionRequest) returns (InitiateCredentialAcquisitionResponse);
 
     // Enrolls a new proof-of-possession credential: an X509-SVID for a
-    // Credential Signing Key the workload generated, from a PKCS#10 CSR and
+    // Credential Signing Key the Workload generated, from a PKCS#10 CSR and
     // Evidence bound to that CSR (TACRA, Enroll-Credential). The private key
     // stays with the workload.
     rpc EnrollCredential(EnrollCredentialRequest) returns (EnrollCredentialResponse);
 
     // Retrieves a pre-existing credential, sealed to a Credential Encryption
-    // Key the workload generated, from Evidence bound to that key (TACRA,
-    // Retrieve-Credential). Only the workload can open the returned bundle.
+    // Key the Workload generated, from Evidence bound to that key (TACRA,
+    // Retrieve-Credential). Only the Workload can open the returned bundle.
     rpc RetrieveCredential(RetrieveCredentialRequest) returns (RetrieveCredentialResponse);
 }
 
@@ -254,7 +254,7 @@ message WITBundlesResponse {
 
 // FreshnessKind classifies the freshness of Evidence in one credential
 // acquisition exchange (TACRA, Freshness Kind). The present kinds carry a
-// Freshness Handle the workload embeds in its Evidence; the absent kinds
+// Freshness Handle the Workload embeds in its Evidence; the absent kinds
 // carry none.
 enum FreshnessKind {
     FRESHNESS_KIND_UNSPECIFIED = 0;
@@ -262,16 +262,16 @@ enum FreshnessKind {
     // No freshness claim.
     FRESHNESS_KIND_ABSENT_NONE = 1;
 
-    // The workload stamps its Evidence with its own timestamp.
+    // The Workload stamps its Evidence with its own timestamp.
     FRESHNESS_KIND_ABSENT_TIMESTAMP = 2;
 
-    // The workload embeds an epoch marker it already holds.
+    // The Workload embeds an epoch marker it already holds.
     FRESHNESS_KIND_ABSENT_EPOCH = 3;
 
     // The Freshness Handle is a single-use nonce.
     FRESHNESS_KIND_PRESENT_NONCE = 4;
 
-    // The Freshness Handle is the current epoch marker. The workload calls
+    // The Freshness Handle is the current epoch marker. The Workload calls
     // InitiateCredentialAcquisition again when the epoch has moved.
     FRESHNESS_KIND_PRESENT_EPOCH = 5;
 }
@@ -282,11 +282,11 @@ enum CredentialAcquisitionMode {
     CREDENTIAL_ACQUISITION_MODE_UNSPECIFIED = 0;
 
     // Enrollment: a new proof-of-possession credential is minted for a key
-    // the workload generated (EnrollCredential).
+    // the Workload generated (EnrollCredential).
     CREDENTIAL_ACQUISITION_MODE_ENROLL = 1;
 
     // Retrieval: a pre-existing credential is released, sealed to a key the
-    // workload generated (RetrieveCredential).
+    // Workload generated (RetrieveCredential).
     CREDENTIAL_ACQUISITION_MODE_RETRIEVE = 2;
 }
 
@@ -299,7 +299,7 @@ enum CredentialType {
     CREDENTIAL_TYPE_X509 = 1;
 
     // A WIMSE Workload Identity Certificate (token wic): an X.509
-    // certificate whose one URI SAN is the workload identifier.
+    // certificate whose one URI SAN is the Workload identifier.
     CREDENTIAL_TYPE_WIC = 2;
 
     // A WIMSE Workload Identity Token (token wit). Retrieval only.
@@ -336,23 +336,23 @@ message EvidenceBinding {
 // of Initiate-Credential-Acquisition.
 message InitiateCredentialAcquisitionRequest {
     // Required. The Target: the octet string that names the relying party
-    // the credential is for, as the workload and that party agree on it.
+    // the credential is for, as the Workload and that party agree on it.
     // With SPIRE, the SPIFFE ID of the trust domain names the trust domain
-    // whose workloads rely on the credential.
+    // whose Workloads rely on the credential.
     string target = 1;
 
-    // Optional. The Credential Type the workload plans to use with the
+    // Optional. The Credential Type the Workload plans to use with the
     // Target. If unset, the Target's policy decides.
     CredentialType credential_type = 2;
 
     // Optional. The Credential Hint. With SPIRE, the hint of the
-    // registration entry whose identity the workload wants when it is
+    // registration entry whose identity the Workload wants when it is
     // entitled to more than one.
     string credential_hint = 3;
 }
 
 // The InitiateCredentialAcquisitionResponse message conveys what the
-// workload needs to produce its key and its Evidence.
+// Workload needs to produce its key and its Evidence.
 message InitiateCredentialAcquisitionResponse {
     // Required. The mode in which the Target's credential is acquired.
     CredentialAcquisitionMode mode = 1;
@@ -362,7 +362,7 @@ message InitiateCredentialAcquisitionResponse {
 
     // The Freshness Handle: required for present-nonce (16 to 64 octets, at
     // least 128 bits of entropy, issued once) and present-epoch (8 to 64
-    // octets), absent otherwise. The workload embeds it in its Evidence and
+    // octets), absent otherwise. The Workload embeds it in its Evidence and
     // sends it back as the freshness element of the second call.
     bytes freshness_handle = 3;
 
@@ -410,14 +410,14 @@ message EnrollCredentialRequest {
     FreshnessKind freshness_kind = 4;
 
     // The freshness element the Evidence binds: the Freshness Handle for
-    // present-nonce and present-epoch, the epoch marker the workload holds
-    // for absent-epoch, the workload's 8-octet timestamp for
+    // present-nonce and present-epoch, the epoch marker the Workload holds
+    // for absent-epoch, the Workload's 8-octet timestamp for
     // absent-timestamp, absent for absent-none.
     bytes freshness_element = 5;
 
     // Required. ASN.1 DER encoded PKCS#10 CSR, signed by the Credential
-    // Signing Key the workload generated. The CSR conveys the public key;
-    // the SPIFFE ID of the credential comes from the workload's
+    // Signing Key the Workload generated. The CSR conveys the public key;
+    // the SPIFFE ID of the credential comes from the Workload's
     // registration, as for FetchX509SVID, not from the CSR.
     bytes csr = 6;
 
@@ -447,7 +447,7 @@ message EnrollCredentialResponse {
     bytes bundle = 3;
 
     // Optional. An operator-specified string used to provide guidance on how
-    // this identity should be used by a workload, as in X509SVID.
+    // this identity should be used by a Workload, as in X509SVID.
     string hint = 4;
 }
 
@@ -491,7 +491,7 @@ message RetrieveCredentialRequest {
 }
 
 // The RetrieveCredentialResponse message carries the released credential,
-// sealed to the workload's Credential Encryption Key.
+// sealed to the Workload's Credential Encryption Key.
 message RetrieveCredentialResponse {
     // Required. The encrypted credential bundle of TACRA (Sealing the
     // Released Credential): a JSON container that names its HPKE suite and
