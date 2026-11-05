@@ -1131,7 +1131,7 @@ func (x *WITBundlesResponse) GetBundles() map[string]string {
 	return nil
 }
 
-// The EvidenceBinding message declares how the credential key is bound to
+// The EvidenceBinding message declares how the Attester-held key is bound to
 // the Evidence (TACRA, Binding Credential Keys to Evidence).
 type EvidenceBinding struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
