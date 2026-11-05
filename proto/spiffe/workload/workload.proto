@@ -77,7 +77,7 @@ service SpiffeWorkloadAPI {
     // Enrolls a new proof-of-possession credential: an X509-SVID for a
     // Credential Signing Key the Workload generated, from a PKCS#10 CSR and
     // Evidence bound to that CSR (TACRA, Enroll-Credential). The private key
-    // stays with the workload.
+    // stays with the Workload.
     rpc EnrollCredential(EnrollCredentialRequest) returns (EnrollCredentialResponse);
 
     // Retrieves a pre-existing credential, sealed to a Credential Encryption
@@ -276,7 +276,7 @@ enum FreshnessKind {
     FRESHNESS_KIND_PRESENT_EPOCH = 5;
 }
 
-// CredentialAcquisitionMode is the mode in which a Target's credential is
+// CredentialAcquisitionMode is the mode in which the credential of a Target is
 // acquired (TACRA, Credential Acquisition Mode).
 enum CredentialAcquisitionMode {
     CREDENTIAL_ACQUISITION_MODE_UNSPECIFIED = 0;
@@ -335,14 +335,14 @@ message EvidenceBinding {
 // The InitiateCredentialAcquisitionRequest message conveys the parameters
 // of Initiate-Credential-Acquisition.
 message InitiateCredentialAcquisitionRequest {
-    // Required. The Target: the octet string that names the relying party
+    // Required. The Target: the octet string that names the Relying Party
     // the credential is for, as the Workload and that party agree on it.
     // With SPIRE, the SPIFFE ID of the trust domain names the trust domain
     // whose Workloads rely on the credential.
     string target = 1;
 
     // Optional. The Credential Type the Workload plans to use with the
-    // Target. If unset, the Target's policy decides.
+    // Target. If unset, the policy of the Target decides.
     CredentialType credential_type = 2;
 
     // Optional. The Credential Hint. With SPIRE, the hint of the
@@ -354,7 +354,7 @@ message InitiateCredentialAcquisitionRequest {
 // The InitiateCredentialAcquisitionResponse message conveys what the
 // Workload needs to produce its key and its Evidence.
 message InitiateCredentialAcquisitionResponse {
-    // Required. The mode in which the Target's credential is acquired.
+    // Required. The mode in which the credential of the Target is acquired.
     CredentialAcquisitionMode mode = 1;
 
     // Required. The Freshness Kind of this exchange.
@@ -374,8 +374,8 @@ message InitiateCredentialAcquisitionResponse {
     uint32 max_age = 5;
 
     // The signature algorithms the Credential Authority accepts for the
-    // Credential Signing Key, as tokens of the TACRA EST profile, for
-    // example ecdsa-p256-sha256. Required when mode is enroll, absent
+    // Credential Signing Key, by name, for example ecdsa-p256-sha256.
+    // Required when mode is enroll, absent
     // otherwise.
     repeated string acceptable_csk = 6;
 
@@ -411,21 +411,21 @@ message EnrollCredentialRequest {
 
     // The freshness element the Evidence binds: the Freshness Handle for
     // present-nonce and present-epoch, the epoch marker the Workload holds
-    // for absent-epoch, the Workload's 8-octet timestamp for
+    // for absent-epoch, the 8-octet timestamp of the Workload for
     // absent-timestamp, absent for absent-none.
     bytes freshness_element = 5;
 
     // Required. ASN.1 DER encoded PKCS#10 CSR, signed by the Credential
     // Signing Key the Workload generated. The CSR conveys the public key;
-    // the SPIFFE ID of the credential comes from the Workload's
-    // registration, as for FetchX509SVID, not from the CSR.
+    // the SPIFFE ID of the credential comes from the registration of the
+    // Workload, as for FetchX509SVID, not from the CSR.
     bytes csr = 6;
 
     // Required. The Evidence, bound to the CSR, the Target and the freshness
     // element as binding declares.
     bytes evidence = 7;
 
-    // Optional. The media type of evidence, one of the acceptable_evidence
+    // Optional. The media type of the Evidence, one of the acceptable_evidence
     // of the InitiateCredentialAcquisition response.
     string evidence_profile = 8;
 
@@ -434,7 +434,7 @@ message EnrollCredentialRequest {
 }
 
 // The EnrollCredentialResponse message carries the enrolled X509-SVID. It
-// carries no private key: the key never left the workload.
+// carries no private key: the key never left the Workload.
 message EnrollCredentialResponse {
     // Required. The SPIFFE ID of the X509-SVID.
     string spiffe_id = 1;
@@ -482,7 +482,7 @@ message RetrieveCredentialRequest {
     // element as binding declares.
     bytes evidence = 7;
 
-    // Optional. The media type of evidence, one of the acceptable_evidence
+    // Optional. The media type of the Evidence, one of the acceptable_evidence
     // of the InitiateCredentialAcquisition response.
     string evidence_profile = 8;
 
@@ -491,7 +491,7 @@ message RetrieveCredentialRequest {
 }
 
 // The RetrieveCredentialResponse message carries the released credential,
-// sealed to the Workload's Credential Encryption Key.
+// sealed to the Credential Encryption Key of the Workload.
 message RetrieveCredentialResponse {
     // Required. The encrypted credential bundle of TACRA (Sealing the
     // Released Credential): a JSON container that names its HPKE suite and

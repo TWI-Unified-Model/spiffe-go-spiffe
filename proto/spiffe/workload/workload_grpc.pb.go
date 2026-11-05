@@ -73,7 +73,7 @@ type SpiffeWorkloadAPIClient interface {
 	// Enrolls a new proof-of-possession credential: an X509-SVID for a
 	// Credential Signing Key the Workload generated, from a PKCS#10 CSR and
 	// Evidence bound to that CSR (TACRA, Enroll-Credential). The private key
-	// stays with the workload.
+	// stays with the Workload.
 	EnrollCredential(ctx context.Context, in *EnrollCredentialRequest, opts ...grpc.CallOption) (*EnrollCredentialResponse, error)
 	// Retrieves a pre-existing credential, sealed to a Credential Encryption
 	// Key the Workload generated, from Evidence bound to that key (TACRA,
@@ -276,7 +276,7 @@ type SpiffeWorkloadAPIServer interface {
 	// Enrolls a new proof-of-possession credential: an X509-SVID for a
 	// Credential Signing Key the Workload generated, from a PKCS#10 CSR and
 	// Evidence bound to that CSR (TACRA, Enroll-Credential). The private key
-	// stays with the workload.
+	// stays with the Workload.
 	EnrollCredential(context.Context, *EnrollCredentialRequest) (*EnrollCredentialResponse, error)
 	// Retrieves a pre-existing credential, sealed to a Credential Encryption
 	// Key the Workload generated, from Evidence bound to that key (TACRA,

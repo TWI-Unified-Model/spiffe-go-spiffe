@@ -90,7 +90,7 @@ func (FreshnessKind) EnumDescriptor() ([]byte, []int) {
 	return file_workload_proto_rawDescGZIP(), []int{0}
 }
 
-// CredentialAcquisitionMode is the mode in which a Target's credential is
+// CredentialAcquisitionMode is the mode in which the credential of a Target is
 // acquired (TACRA, Credential Acquisition Mode).
 type CredentialAcquisitionMode int32
 
@@ -1194,13 +1194,13 @@ func (x *EvidenceBinding) GetHash() string {
 // of Initiate-Credential-Acquisition.
 type InitiateCredentialAcquisitionRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. The Target: the octet string that names the relying party
+	// Required. The Target: the octet string that names the Relying Party
 	// the credential is for, as the Workload and that party agree on it.
 	// With SPIRE, the SPIFFE ID of the trust domain names the trust domain
 	// whose Workloads rely on the credential.
 	Target string `protobuf:"bytes,1,opt,name=target,proto3" json:"target,omitempty"`
 	// Optional. The Credential Type the Workload plans to use with the
-	// Target. If unset, the Target's policy decides.
+	// Target. If unset, the policy of the Target decides.
 	CredentialType CredentialType `protobuf:"varint,2,opt,name=credential_type,json=credentialType,proto3,enum=CredentialType" json:"credential_type,omitempty"`
 	// Optional. The Credential Hint. With SPIRE, the hint of the
 	// registration entry whose identity the Workload wants when it is
@@ -1265,7 +1265,7 @@ func (x *InitiateCredentialAcquisitionRequest) GetCredentialHint() string {
 // Workload needs to produce its key and its Evidence.
 type InitiateCredentialAcquisitionResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. The mode in which the Target's credential is acquired.
+	// Required. The mode in which the credential of the Target is acquired.
 	Mode CredentialAcquisitionMode `protobuf:"varint,1,opt,name=mode,proto3,enum=CredentialAcquisitionMode" json:"mode,omitempty"`
 	// Required. The Freshness Kind of this exchange.
 	FreshnessKind FreshnessKind `protobuf:"varint,2,opt,name=freshness_kind,json=freshnessKind,proto3,enum=FreshnessKind" json:"freshness_kind,omitempty"`
@@ -1280,8 +1280,8 @@ type InitiateCredentialAcquisitionResponse struct {
 	// Evidence the Verifier accepts.
 	MaxAge uint32 `protobuf:"varint,5,opt,name=max_age,json=maxAge,proto3" json:"max_age,omitempty"`
 	// The signature algorithms the Credential Authority accepts for the
-	// Credential Signing Key, as tokens of the TACRA EST profile, for
-	// example ecdsa-p256-sha256. Required when mode is enroll, absent
+	// Credential Signing Key, by name, for example ecdsa-p256-sha256.
+	// Required when mode is enroll, absent
 	// otherwise.
 	AcceptableCsk []string `protobuf:"bytes,6,rep,name=acceptable_csk,json=acceptableCsk,proto3" json:"acceptable_csk,omitempty"`
 	// The HPKE suites the Secret Vault seals to, each named by its KEM, KDF
@@ -1400,18 +1400,18 @@ type EnrollCredentialRequest struct {
 	FreshnessKind FreshnessKind `protobuf:"varint,4,opt,name=freshness_kind,json=freshnessKind,proto3,enum=FreshnessKind" json:"freshness_kind,omitempty"`
 	// The freshness element the Evidence binds: the Freshness Handle for
 	// present-nonce and present-epoch, the epoch marker the Workload holds
-	// for absent-epoch, the Workload's 8-octet timestamp for
+	// for absent-epoch, the 8-octet timestamp of the Workload for
 	// absent-timestamp, absent for absent-none.
 	FreshnessElement []byte `protobuf:"bytes,5,opt,name=freshness_element,json=freshnessElement,proto3" json:"freshness_element,omitempty"`
 	// Required. ASN.1 DER encoded PKCS#10 CSR, signed by the Credential
 	// Signing Key the Workload generated. The CSR conveys the public key;
-	// the SPIFFE ID of the credential comes from the Workload's
-	// registration, as for FetchX509SVID, not from the CSR.
+	// the SPIFFE ID of the credential comes from the registration of the
+	// Workload, as for FetchX509SVID, not from the CSR.
 	Csr []byte `protobuf:"bytes,6,opt,name=csr,proto3" json:"csr,omitempty"`
 	// Required. The Evidence, bound to the CSR, the Target and the freshness
 	// element as binding declares.
 	Evidence []byte `protobuf:"bytes,7,opt,name=evidence,proto3" json:"evidence,omitempty"`
-	// Optional. The media type of evidence, one of the acceptable_evidence
+	// Optional. The media type of the Evidence, one of the acceptable_evidence
 	// of the InitiateCredentialAcquisition response.
 	EvidenceProfile string `protobuf:"bytes,8,opt,name=evidence_profile,json=evidenceProfile,proto3" json:"evidence_profile,omitempty"`
 	// Required. How the Evidence binds the CSR.
@@ -1514,7 +1514,7 @@ func (x *EnrollCredentialRequest) GetBinding() *EvidenceBinding {
 }
 
 // The EnrollCredentialResponse message carries the enrolled X509-SVID. It
-// carries no private key: the key never left the workload.
+// carries no private key: the key never left the Workload.
 type EnrollCredentialResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. The SPIFFE ID of the X509-SVID.
@@ -1614,7 +1614,7 @@ type RetrieveCredentialRequest struct {
 	// Required. The Evidence, bound to cek_pub, the Target and the freshness
 	// element as binding declares.
 	Evidence []byte `protobuf:"bytes,7,opt,name=evidence,proto3" json:"evidence,omitempty"`
-	// Optional. The media type of evidence, one of the acceptable_evidence
+	// Optional. The media type of the Evidence, one of the acceptable_evidence
 	// of the InitiateCredentialAcquisition response.
 	EvidenceProfile string `protobuf:"bytes,8,opt,name=evidence_profile,json=evidenceProfile,proto3" json:"evidence_profile,omitempty"`
 	// Required. How the Evidence binds cek_pub.
@@ -1717,7 +1717,7 @@ func (x *RetrieveCredentialRequest) GetBinding() *EvidenceBinding {
 }
 
 // The RetrieveCredentialResponse message carries the released credential,
-// sealed to the Workload's Credential Encryption Key.
+// sealed to the Credential Encryption Key of the Workload.
 type RetrieveCredentialResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. The encrypted credential bundle of TACRA (Sealing the
