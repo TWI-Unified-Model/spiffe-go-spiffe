@@ -342,7 +342,7 @@ message InitiateCredentialAcquisitionRequest {
     string target = 1;
 
     // Optional. The Credential Type the Workload plans to use with the
-    // Target. If unset, the policy of the Target decides.
+    // Target. If unset, the policy for the Target decides.
     CredentialType credential_type = 2;
 
     // Optional. The Credential Hint. With SPIRE, the hint of the

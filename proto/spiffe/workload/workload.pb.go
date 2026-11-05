@@ -1200,7 +1200,7 @@ type InitiateCredentialAcquisitionRequest struct {
 	// whose Workloads rely on the credential.
 	Target string `protobuf:"bytes,1,opt,name=target,proto3" json:"target,omitempty"`
 	// Optional. The Credential Type the Workload plans to use with the
-	// Target. If unset, the policy of the Target decides.
+	// Target. If unset, the policy for the Target decides.
 	CredentialType CredentialType `protobuf:"varint,2,opt,name=credential_type,json=credentialType,proto3,enum=CredentialType" json:"credential_type,omitempty"`
 	// Optional. The Credential Hint. With SPIRE, the hint of the
 	// registration entry whose identity the Workload wants when it is
