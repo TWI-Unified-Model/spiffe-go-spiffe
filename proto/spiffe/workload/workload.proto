@@ -50,6 +50,7 @@ service SpiffeWorkloadAPI {
     // of the trust domain. As this information changes, subsequent messages
     // will be streamed from the server.
     rpc FetchWITBundles(WITBundlesRequest) returns (stream WITBundlesResponse);
+
     /////////////////////////////////////////////////////////////////////////
     // Attested Credential Acquisition
     /////////////////////////////////////////////////////////////////////////
