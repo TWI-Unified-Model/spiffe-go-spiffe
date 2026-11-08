@@ -48,6 +48,15 @@ type WorkloadAPI struct {
 	witBundlesResp   *workload.WITBundlesResponse
 	witBundlesChans  map[chan *workload.WITBundlesResponse]struct{}
 	witBundlesErr    error
+	initiateResp     *workload.InitiateCredentialAcquisitionResponse
+	initiateErr      error
+	enrollResp       *workload.EnrollCredentialResponse
+	enrollErr        error
+	retrieveResp     *workload.RetrieveCredentialResponse
+	retrieveErr      error
+	initiateReq      *workload.InitiateCredentialAcquisitionRequest
+	enrollReq        *workload.EnrollCredentialRequest
+	retrieveReq      *workload.RetrieveCredentialRequest
 }
 
 func New(tb testing.TB) *WorkloadAPI {
@@ -221,6 +230,57 @@ func (w *WorkloadAPI) SetWITBundles(bundles ...*witbundle.Bundle) {
 	}
 }
 
+// SetInitiateCredentialAcquisitionResponse sets what InitiateCredentialAcquisition
+// returns: the response, or the error when it is not nil.
+func (w *WorkloadAPI) SetInitiateCredentialAcquisitionResponse(r *workload.InitiateCredentialAcquisitionResponse, err error) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	w.initiateResp = r
+	w.initiateErr = err
+}
+
+// SetEnrollCredentialResponse sets what EnrollCredential returns: the
+// response, or the error when it is not nil.
+func (w *WorkloadAPI) SetEnrollCredentialResponse(r *workload.EnrollCredentialResponse, err error) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	w.enrollResp = r
+	w.enrollErr = err
+}
+
+// SetRetrieveCredentialResponse sets what RetrieveCredential returns: the
+// response, or the error when it is not nil.
+func (w *WorkloadAPI) SetRetrieveCredentialResponse(r *workload.RetrieveCredentialResponse, err error) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	w.retrieveResp = r
+	w.retrieveErr = err
+}
+
+// LastInitiateCredentialAcquisitionRequest returns the last request
+// InitiateCredentialAcquisition received.
+func (w *WorkloadAPI) LastInitiateCredentialAcquisitionRequest() *workload.InitiateCredentialAcquisitionRequest {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	return w.initiateReq
+}
+
+// LastEnrollCredentialRequest returns the last request EnrollCredential
+// received.
+func (w *WorkloadAPI) LastEnrollCredentialRequest() *workload.EnrollCredentialRequest {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	return w.enrollReq
+}
+
+// LastRetrieveCredentialRequest returns the last request RetrieveCredential
+// received.
+func (w *WorkloadAPI) LastRetrieveCredentialRequest() *workload.RetrieveCredentialRequest {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	return w.retrieveReq
+}
+
 type workloadAPIWrapper struct {
 	workload.UnimplementedSpiffeWorkloadAPIServer
 	w *WorkloadAPI
@@ -252,6 +312,18 @@ func (w *workloadAPIWrapper) FetchWITSVID(req *workload.WITSVIDRequest, stream w
 
 func (w *workloadAPIWrapper) FetchWITBundles(req *workload.WITBundlesRequest, stream workload.SpiffeWorkloadAPI_FetchWITBundlesServer) error {
 	return w.w.fetchWITBundles(req, stream)
+}
+
+func (w *workloadAPIWrapper) InitiateCredentialAcquisition(ctx context.Context, req *workload.InitiateCredentialAcquisitionRequest) (*workload.InitiateCredentialAcquisitionResponse, error) {
+	return w.w.initiateCredentialAcquisition(ctx, req)
+}
+
+func (w *workloadAPIWrapper) EnrollCredential(ctx context.Context, req *workload.EnrollCredentialRequest) (*workload.EnrollCredentialResponse, error) {
+	return w.w.enrollCredential(ctx, req)
+}
+
+func (w *workloadAPIWrapper) RetrieveCredential(ctx context.Context, req *workload.RetrieveCredentialRequest) (*workload.RetrieveCredentialResponse, error) {
+	return w.w.retrieveCredential(ctx, req)
 }
 
 type X509SVIDResponse struct {
@@ -532,6 +604,76 @@ func (w *WorkloadAPI) validateJWTSVID(_ context.Context, req *workload.ValidateJ
 		SpiffeId: jwtSvid.ID.String(),
 		Claims:   claims,
 	}, nil
+}
+
+func (w *WorkloadAPI) initiateCredentialAcquisition(ctx context.Context, req *workload.InitiateCredentialAcquisitionRequest) (*workload.InitiateCredentialAcquisitionResponse, error) {
+	if err := checkHeader(ctx); err != nil {
+		return nil, err
+	}
+	if req.Target == "" {
+		return nil, status.Error(codes.InvalidArgument, "target must be specified")
+	}
+
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	w.initiateReq = req
+	if w.initiateErr != nil {
+		return nil, w.initiateErr
+	}
+	if w.initiateResp == nil {
+		return nil, status.Error(codes.Unimplemented, "attested credential acquisition is not supported")
+	}
+	return w.initiateResp, nil
+}
+
+func (w *WorkloadAPI) enrollCredential(ctx context.Context, req *workload.EnrollCredentialRequest) (*workload.EnrollCredentialResponse, error) {
+	if err := checkHeader(ctx); err != nil {
+		return nil, err
+	}
+	switch {
+	case req.Target == "":
+		return nil, status.Error(codes.InvalidArgument, "target must be specified")
+	case len(req.Csr) == 0:
+		return nil, status.Error(codes.InvalidArgument, "csr must be specified")
+	case len(req.Evidence) == 0:
+		return nil, status.Error(codes.InvalidArgument, "evidence must be specified")
+	}
+
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	w.enrollReq = req
+	if w.enrollErr != nil {
+		return nil, w.enrollErr
+	}
+	if w.enrollResp == nil {
+		return nil, status.Error(codes.Unimplemented, "attested credential acquisition is not supported")
+	}
+	return w.enrollResp, nil
+}
+
+func (w *WorkloadAPI) retrieveCredential(ctx context.Context, req *workload.RetrieveCredentialRequest) (*workload.RetrieveCredentialResponse, error) {
+	if err := checkHeader(ctx); err != nil {
+		return nil, err
+	}
+	switch {
+	case req.Target == "":
+		return nil, status.Error(codes.InvalidArgument, "target must be specified")
+	case len(req.CekPub) == 0:
+		return nil, status.Error(codes.InvalidArgument, "cek_pub must be specified")
+	case len(req.Evidence) == 0:
+		return nil, status.Error(codes.InvalidArgument, "evidence must be specified")
+	}
+
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	w.retrieveReq = req
+	if w.retrieveErr != nil {
+		return nil, w.retrieveErr
+	}
+	if w.retrieveResp == nil {
+		return nil, status.Error(codes.Unimplemented, "attested credential acquisition is not supported")
+	}
+	return w.retrieveResp, nil
 }
 
 func checkHeader(ctx context.Context) error {

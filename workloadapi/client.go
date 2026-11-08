@@ -342,6 +342,38 @@ func (c *Client) WatchWITBundles(ctx context.Context, watcher WITBundleWatcher) 
 	}
 }
 
+// InitiateCredentialAcquisition initiates attested credential acquisition
+// for a Target (TACRA, Initiate-Credential-Acquisition). The response
+// carries the Freshness Kind and Handle, the Credential Acquisition Mode and
+// the algorithms accepted, from which the Workload produces its key and its
+// Evidence for EnrollCredential or RetrieveCredential.
+func (c *Client) InitiateCredentialAcquisition(ctx context.Context, req *workload.InitiateCredentialAcquisitionRequest) (*workload.InitiateCredentialAcquisitionResponse, error) {
+	ctx, cancel := context.WithCancel(withHeader(ctx))
+	defer cancel()
+
+	return c.wlClient.InitiateCredentialAcquisition(ctx, req)
+}
+
+// EnrollCredential enrolls an X509-SVID for a Credential Signing Key the
+// Workload generated, from a PKCS#10 CSR and Evidence bound to it (TACRA,
+// Enroll-Credential). The private key never leaves the workload.
+func (c *Client) EnrollCredential(ctx context.Context, req *workload.EnrollCredentialRequest) (*workload.EnrollCredentialResponse, error) {
+	ctx, cancel := context.WithCancel(withHeader(ctx))
+	defer cancel()
+
+	return c.wlClient.EnrollCredential(ctx, req)
+}
+
+// RetrieveCredential retrieves a pre-existing credential sealed to a
+// Credential Encryption Key the Workload generated, from Evidence bound to
+// it (TACRA, Retrieve-Credential). Only the Workload can open the bundle.
+func (c *Client) RetrieveCredential(ctx context.Context, req *workload.RetrieveCredentialRequest) (*workload.RetrieveCredentialResponse, error) {
+	ctx, cancel := context.WithCancel(withHeader(ctx))
+	defer cancel()
+
+	return c.wlClient.RetrieveCredential(ctx, req)
+}
+
 func (c *Client) fetchWITSVIDs(ctx context.Context, spiffeID string, firstOnly bool) ([]*witsvid.SVID, error) {
 	ctx, cancel := context.WithCancel(withHeader(ctx))
 	defer cancel()
